@@ -1,0 +1,9 @@
+FileVersion = 1
+Dependencies = {corlib = "*", raylib-beef = "*"}
+
+[Project]
+Name = "Boids"
+StartupObject = "Boids.Program"
+
+[Configs.Debug.Win64]
+OptimizationLevel = "OgPlus"
