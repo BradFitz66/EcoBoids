@@ -5,7 +5,7 @@ using static raylib_beef.Raymath;
 using static raylib_beef.Raylib;
 namespace Boids.lib
 {
-	class QuadTree<T> where T = Entity
+	class QuadTree<T> where T : Entity
 	{
 		List<T> items ~ delete _;
 		Rectangle rect;
@@ -23,7 +23,7 @@ namespace Boids.lib
 			curDepth = initDepth;
 		}
 
-		public void Add(T item)
+		public void Add(T item)+
 		{
 			if (bins.Count==0)
 			{
@@ -55,7 +55,7 @@ namespace Boids.lib
 				{
 					bins[i].Clear();
 				}
-				bins.Clear();
+				ClearAndDeleteItems(bins);
 			}
 		}
 
@@ -76,7 +76,7 @@ namespace Boids.lib
 				if (binIndex > -1 && binIndex<bins.Count)
 					bins[binIndex].Add(items[i]);
 			}
-			Del(items);
+			DeleteAndNullify!(items);
 		}
 
 		public void getItemsInRadius(ref List<T> list, float x, float y, float radius)
@@ -110,7 +110,8 @@ namespace Boids.lib
 		}
 		public void Draw()
 		{
-			DrawRectangleLines((int32)rect.x, (int32)rect.y, (int32)rect.width, (int32)rect.height, Color.WHITE);
+			
+			DrawRectangleLinesEx(rect,Math.Max(int32(1/cam.zoom),1), Color.BLACK);
 			if (bins.Count != 0)
 			{
 				for (int i = 0; i < bins.Count; i++)

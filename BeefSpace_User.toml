@@ -1,7 +1,7 @@
 FileVersion = 1
 LastConfig = "Release"
 LastPlatform = "Win64"
-RecentFilesList = ["src\\GameApp.bf", "src\\Boid.bf", "src\\lib\\KDTree.bf", "src\\Program.bf", "src\\lib\\QuadTree.bf", "Disassembly", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\System.bf", "src\\lib\\Rectangle.bf"]
+RecentFilesList = ["src\\lib\\SpatialHash.bf", "src\\lib\\Enumerable.bf", "src\\lib\\Entity.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Collections\\List.bf", "src\\Boid.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\System.bf", "src\\GameApp.bf", "src\\Program.bf", "src\\lib\\QuadTree.bf", "Disassembly", "src\\lib\\Rectangle.bf"]
 
 [MainWindow]
 X = 64
@@ -42,54 +42,68 @@ DefaultDocumentsTabbedView = true
 Type = "TabbedView"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Enumerable.bf"
+TabWidth = 124.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\Enumerable.bf"
+CursorPos = 81127
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Entity.bf"
+TabWidth = 76.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\Entity.bf"
+CursorPos = 272
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+Active = true
+TabLabel = "SpatialHash.bf"
+TabWidth = 113.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\SpatialHash.bf"
+CursorPos = 100
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "List.bf"
+TabWidth = 64.0
+Type = "SourceViewPanel"
+FilePath = "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Collections\\List.bf"
+CursorPos = 4743
+ProjectName = "corlib"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "System.bf"
 TabWidth = 86.0
 Type = "SourceViewPanel"
 FilePath = "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\System.bf"
 CursorPos = 2583
-VertPos = 1890.0
 ProjectName = "corlib"
-
-[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
-TabLabel = "KDTree.bf"
-TabWidth = 87.0
-Type = "SourceViewPanel"
-FilePath = "src\\lib\\KDTree.bf"
-CursorPos = 7126
-VertPos = 405.0
-ProjectName = "Boids"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Boid.bf"
 TabWidth = 71.0
 Type = "SourceViewPanel"
 FilePath = "src\\Boid.bf"
-CursorPos = 2631
-VertPos = 825.0
+CursorPos = 642
 ProjectName = "Boids"
-
-[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
-TabLabel = "Disassembly"
-TabWidth = 102.0
-Type = "DisassemblyPanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "QuadTree.bf"
 TabWidth = 102.0
 Type = "SourceViewPanel"
 FilePath = "src\\lib\\QuadTree.bf"
-CursorPos = 1195
-VertPos = 861.75
+CursorPos = 1885
 ProjectName = "Boids"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
-Active = true
 TabLabel = "GameApp.bf"
 TabWidth = 103.0
 Type = "SourceViewPanel"
 FilePath = "src\\GameApp.bf"
-CursorPos = 2395
-VertPos = 1080.0
+CursorPos = 4059
 ProjectName = "Boids"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
@@ -113,7 +127,6 @@ SizePriority = 0.5229406
 Type = "TabbedView"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
-Active = true
 TabLabel = "Profile"
 TabWidth = 87.0
 Type = "ProfilePanel"
@@ -133,6 +146,7 @@ Columns = [{Width = 200.0}, {Width = 200.0}, {Width = 200.0}]
 Items = [""]
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+Active = true
 TabLabel = "Auto"
 TabWidth = 77.0
 Type = "AutoWatchPanel"

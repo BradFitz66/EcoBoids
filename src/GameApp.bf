@@ -3,14 +3,21 @@ using System.Collections;
 using static raylib_beef.Raylib;
 using raylib_beef.Types;
 using static raylib_beef.Raymath;
+
 using Boids.lib;
 
+
+/*
+	Title: GameApp
+	Description: Handles initialization of boids and updating of systems like the quadtree as-well as handling the drawing
+*/
 namespace Boids
 {
+	//Global stuff
 	static{
 		public static GameApp app;
-
-		public static Vector2 limitVec(this ref Vector2 vec, float maxLength)
+		public static Camera2D cam;
+		public static Vector2 limitVec(this ref Vector2 vec, float maxLength) 
 		{
 
 			let lengthSquared = vec.x * vec.x + vec.y * vec.y;
@@ -24,8 +31,12 @@ namespace Boids
 
 			return vec;
 		}
-		public static KDTree<Boid> tree;
-		//public static SpatialHash<Boid> hash ~ delete _;
+
+		public static QuadTree<Boid> tree;
+		public static bool spatialHash=true;
+		public static SpatialHash<Entity> hash;
+
+
 		//Extension methods for Raylib rectangle
 		public static bool Contains(this Rectangle r, Vector2 point)
 		{
@@ -36,91 +47,175 @@ namespace Boids
 				point.y < r.y + r.height
 			);
 		}
-		public static bool Intersects(this Rectangle r, Rectangle r2)
-		{
-			return !(
-				r2.x - r2.width > r.x + r.width   ||
-				r2.x + r2.height < r.x - r.width  ||
-				r2.y - r2.height > r.y + r.height ||
-				r2.y + r2.height  < r.y - r.height
-			);
-		}
+		public const int worldWidth=10000;
+		public const int worldHeight=10000;
 
 
 	}
 
 	class GameApp 
 	{
-		const int screenWidth=1200;
-		const int screenHeight=720;
+
 		public List<Boid> boids;
+
+		Point mousePoint;
+
+		Vector2 camVel;
+		float zoomLevel=1.0f;
+		float camSpeed=6;
+		float defaultCamSpeed=6;
 		Random mRand = new Random() ~ delete _;
 		public this(){
 			app=this;
-
+			cam=Camera2D(.(0,0),.(0,0),0,1);
+			//mousePoint=new Point(Vector2.Zero);
 
 			Init();
 		}
 
 		public ~this(){
-			delete(tree);
-			DeleteAndClearItems!(boids);
 		}
 		public void Init(){
-			tree=new KDTree<Boid>(false);
+			if(!spatialHash)
+				tree=new QuadTree<Boid>(20,10,Rectangle(0,0,worldWidth,worldHeight),0);
+			else
+				hash=new SpatialHash<Entity>(200);
 			boids=new List<Boid>();
 			let pi = Math.PI_f;
-			for(int i=0; i<3000; i++){
-				let b = new Boid(mRand.Next(0,1200),mRand.Next(0,720),float(mRand.Next(10,18))/10,45);
-				tree.Add(b);
+			for(int i=0; i<5000; i++){
+				float randx=mRand.Next(0,worldWidth);
+				float randy=mRand.Next(0,worldHeight);
+				let b = new Boid(randx,randy,float(mRand.Next(10,18))/10,45);
+				cam.target=.(0,0);
+				if(!spatialHash)
+					tree.Add(b);
+				else
+					hash.Insert(b.position,b);
 				boids.Add(b);
-
 			}	
 		}
 		float angle = 0;
+		
+
+		public int32 GetScreenHeightWithZoom(){
+			return int32(GetScreenHeight()*(1/Math.Abs(zoomLevel)));
+		}
+		public int32 GetScreenWidthWithZoom(){
+			return int32(GetScreenWidth()*(1/Math.Abs(zoomLevel)));
+		}
 		public void Update()
 		{
-			tree.UpdatePositions();
+			
+			camSpeed= IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_LEFT_SHIFT) ? defaultCamSpeed*2 : defaultCamSpeed;
 
-			if(IsMouseButtonDown(0)){
-				List<Boid> b = scope List<Boid>();
+			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_A)){
+				cam.target+= .(-1,0)*(camSpeed+(1/zoomLevel));
+			}
+			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_D)){
+				cam.target+= .(1,0)*(camSpeed+(1/zoomLevel));
+			}
+			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_W)){
+				cam.target+= .(0,-1)*(camSpeed+(1/zoomLevel));
+			}
+			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_S)){
+				cam.target+= .(0,1)*(camSpeed+(1/zoomLevel));
+			}
 
-				tree.FindClose(GetMousePosition(),ref b);
+			if(cam.target.x>(worldWidth-GetScreenWidthWithZoom()))
+			{
+				cam.target.x=worldWidth-GetScreenWidthWithZoom();
+			}
+			else if(cam.target.x<0){
+				cam.target.x=0;
+			}
+
+			if(cam.target.y>worldHeight-GetScreenHeightWithZoom()){
+				cam.target.y=worldHeight-GetScreenHeightWithZoom();
+			}
+			else if(cam.target.y <0){
+				cam.target.y=0;
+			}
+			zoomLevel+=GetMouseWheelMove()*0.05f;
+			if(zoomLevel<0.25f)
+				zoomLevel=0.25f;
+			else if(zoomLevel>2)
+				zoomLevel=2;
+			
+
+			cam.zoom=zoomLevel;
+
+
+			//Mouse interaction with boids
+			if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
+				List<Entity> b = scope List<Entity>();
+				Vector2 mousePosWorld=GetScreenToWorld2D(GetMousePosition(),cam);
+				
+				hash.QueryPosition(mousePosWorld,ref b);
 
 				for(int i=0;  i<b.Count; i++){
-					if(Vector2Distance(GetMousePosition(),b[i].position)<50){
-						b[i].velocity+= Vector2Normalize(b[i].position-GetMousePosition());
+					if(Vector2Distance(mousePosWorld,b[i].position)<50){
+						((Boid)b[i]).velocity+= Vector2Normalize(b[i].position-mousePosWorld);
 					}
 				}
 			}
 
 			if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_RIGHT_BUTTON)){
-				List<Boid> b = scope List<Boid>();
-
-				tree.FindClose(GetMousePosition(),ref b);
+				List<Entity> b = scope List<Entity>();
+				Vector2 mousePosWorld=GetScreenToWorld2D(GetMousePosition(),cam);
+				hash.QueryPosition(mousePosWorld,ref b);
 
 				for(int i=0;  i<b.Count; i++){
-					if(Vector2Distance(GetMousePosition(),b[i].position)<200){
-						b[i].velocity+= -Vector2Normalize(b[i].position-GetMousePosition())*4;
-					}
+
+					((Boid)b[i]).velocity+= -Vector2Normalize(b[i].position-mousePosWorld)*4;
+					
 				}
 			}
 
+			//mousePoint.prevPos=.(mousePoint.position.x,mousePoint.position.y);
+			//mousePoint.position=GetScreenToWorld2D(GetMousePosition(),cam);
+
+			//hash.UpdatePosition(mousePoint.position,mousePoint.prevPos,mousePoint);
+
 			for(int i=0; i<boids.Count; i++){
+				boids[i].prevPosition=.(boids[i].position.x,boids[i].position.y);
 				boids[i].Update();
-				//hash.UpdatePosition(boids[i].position,boids[i]);
 			}
-		
+
+			if(!spatialHash){
+				tree.Clear();
+				for(int i=0; i<boids.Count; i++){
+					tree.Add(boids[i]);
+				}
+			}
+			else{
+				for(int i=0; i<boids.Count; i++){
+					hash.UpdatePosition(boids[i].position,boids[i].prevPosition,boids[i]);
+				}
+			}
+			
+
+
+
+			//Updates the tree, essentially. Clears all items and then adds them back in.
+			
 		}
 		public void Draw()
 		{
+			//Draw everything
 			BeginDrawing();
-			ClearBackground(.(255, 255, 255, 255));
-			for(int i=0; i<boids.Count; i++){
-				boids[i].Draw();
-			}
-			//tree.Draw();
+				ClearBackground(.(255, 255, 255, 255));
+				BeginMode2D(cam);
+					for(int i=0; i<boids.Count; i++){
+						boids[i].Draw();
+					}
 
+					if(!spatialHash)
+						tree.Draw();
+					else
+						hash.Draw();
+				DrawRectangleLinesEx(.(0,0,worldWidth,worldHeight),5,Color.YELLOW);
+				EndMode2D();
+	
 			EndDrawing();
 		}
 	}

@@ -5,7 +5,7 @@ using static raylib_beef.Raymath;
 using static raylib_beef.Raylib;
 namespace Boids.lib
 {
-	class QuadTree<T> where T = Entity
+	class QuadTree<T> where T : Entity
 	{
 		List<T> items ~ delete _;
 		Rectangle rect;
@@ -110,7 +110,8 @@ namespace Boids.lib
 		}
 		public void Draw()
 		{
-			DrawRectangleLines((int32)rect.x, (int32)rect.y, (int32)rect.width, (int32)rect.height, Color.WHITE);
+			
+			DrawRectangleLinesEx(rect,Math.Max(int32(1/cam.zoom),1), Color.BLACK);
 			if (bins.Count != 0)
 			{
 				for (int i = 0; i < bins.Count; i++)

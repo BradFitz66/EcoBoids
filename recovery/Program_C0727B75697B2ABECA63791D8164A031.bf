@@ -1,5 +1,5 @@
 using System;
-using static raylib_beef.Raylib;
+using static raylib_beef.Raylib;^
 using raylib_beef.Enums;
 namespace Boids
 {
@@ -12,11 +12,11 @@ namespace Boids
 		static void Main(String[] args){
 			gApp=scope GameApp();
 			SetConfigFlags(ConfigFlag.FLAG_WINDOW_RESIZABLE);
-			InitWindow(11, 720, "Boids");
+			InitWindow(1200, 720, "Boids");
 			SetTargetFPS(60);
 			while (!WindowShouldClose())
 			{
-				DrawFPS(1150,720-50);
+				DrawFPS(1110,720-50);
 				gApp.Update();
 				gApp.Draw();
 			}

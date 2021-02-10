@@ -1,47 +1,106 @@
 using System;
 using System.Collections;
-using static raylib_beef.Raymath;
+using Boids.lib;
+using System.Linq;
 using raylib_beef.Types;
-namespace Boids.lib
+using static raylib_beef.Raylib;
+public class SpatialHash<T> where T : Entity
 {
-	class SpatialHash<T> where T:Entity
+	private Dictionary<Vector2, List<T>> dict ~ DeleteDictionaryAndValues!(_);
+	private int cellSize;
+
+	public this(int cellSize)
 	{
-		float gridHeightRes;
-		float gridWidthRes;
-		double invCellSize;
-		int cellSize;
-		int gridWidth;
-		int gridHeight;
-		int gridLength;
-		List<List<T>> grid ~ DeleteContainerAndItems!(_);
+		this.cellSize = cellSize;
+		dict = new Dictionary<Vector2, List<T>>();
+	}
+
+	public void Insert(Vector2 vector, T obj)
+	{
+		Vector2 gridPos = VectorToGridSpace(vector);
+		if (!dict.ContainsKey(gridPos))
+		{
+			dict.Add(gridPos, new List<T>());
+		}
+		dict[gridPos].Add(obj);
+	}
 
 
-		public this(int _width, int _height, int _cellSize){
-			gridWidthRes=_width;
-			gridHeightRes=_height;
+	public void UpdatePosition(Vector2 newVector, Vector2 prevVector, T obj)
+	{
+		Vector2 newGridPos = VectorToGridSpace(newVector);
+		Vector2 oldGridPos = VectorToGridSpace(prevVector);
+		//If still in same cell, don't do anything
+		if (newGridPos == oldGridPos)
+			return;
 
-			cellSize=_cellSize;
-			invCellSize=double(1/cellSize);
-
-			gridWidth=(int)Math.Ceiling(_width*invCellSize);
-			gridHeight=(int)Math.Ceiling(_height*invCellSize);
-
-			gridLength=gridWidth*gridHeight;
-
-			grid=new List<List<T>>();
-
-			for(int i=0; i<gridLength; i++){
-				grid.Add(new List<T>());
-			}
+		if(dict.ContainsKey(oldGridPos)){
+		List<T> objs = dict[oldGridPos];
+		int objInd = objs.FindIndex(
+			scope (x) =>
+			{
+				return x == obj;
+			});
+			Remove(oldGridPos, objInd);
 		}
 
-		public void Add(T entity){
-			
-		}
 
-		void AddIndex(T entity, int _cellPos){
-			grid[_cellPos].Add(entity);
-			
+
+		Insert(newVector, obj);
+	}
+
+	private void Remove(Vector2 gridCell, int index)
+	{
+		//Remove obj from cell and delete cell if it's now empty. (Is this even a good idea? Could this lead to the
+		// memory that list was occupying being overwritten?)
+
+
+		dict[gridCell].RemoveAt(index);
+		Console.WriteLine(dict[gridCell].Count);
+		if (dict[gridCell].Count == -1)
+		{
+			dict.Remove(gridCell);
+		}
+	}
+
+	public void QueryPosition(Vector2 vector, ref List<T> output)
+	{
+		Vector2 gridPos = VectorToGridSpace(vector);
+		if(dict.ContainsKey(gridPos)){
+			output.Clear();
+			output.AddRange(dict[gridPos]);
+		}
+		else
+			return;	
+	}
+
+	public Vector2 VectorToGridSpace(Vector2 v)
+	{
+		Vector2 nV = Vector2(
+			(int)Math.Round(v.x / cellSize) * cellSize,
+			(int)Math.Round(v.y / cellSize) * cellSize
+			);
+		return nV;
+	}
+
+
+	public bool ContainsKey(Vector2 vector)
+	{
+		return false;
+	}
+
+	public void Clear()
+	{
+	}
+
+	public void Reset()
+	{
+	}
+
+	public void Draw()
+	{
+		for(var pos in dict){
+			DrawRectangleLines((int32)pos.key.x-int32(cellSize/2),(int32)pos.key.y-int32(cellSize/2),(int32)cellSize,(int32)cellSize,Color.RED);
 		}
 	}
 }

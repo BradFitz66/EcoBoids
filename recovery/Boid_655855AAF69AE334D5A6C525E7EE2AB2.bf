@@ -7,26 +7,40 @@ using static raylib_beef.Raylib;
 using static raylib_beef.Raymath;
 namespace Boids
 {
+
+
+
 	class Boid : Entity
 	{
 		Vector2 head;
 		Vector2 tailL;
 		Vector2 mid;
 		Vector2 tailR;
+
+		float maxSpeed=3f;
+		float maxForce=0.03f;
+
+		public Vector2 acceleration;
+		public Vector2 prevPosition;
 		public Vector2 velocity;
-		bool goal = true;
+
+		bool goal = false;
 		Color color;
-		List<Boid> boids ~ DeleteContainerAndItems!(_);
+
+		List<Entity> boids ~ DeleteContainerAndItems!(_);
+
 		public float heading { get; private set; }
+
 		public this(float x, float y, float s, float r)
 		{
-			boids = new List<Boid>();
+			aabb=Rectangle(x,y,20,20);
+			boids = new List<Entity>();
 			position.x = x;
 			position.y = y;
 			Scale = s;
 			Rotation = r;
-			velocity = Vector2Normalize(randVector(1));
-			heading = Math.Atan2(velocity.y, velocity.x) - (90 * DEG2RAD);
+			acceleration = Vector2Normalize(randVector(10));
+			heading = Math.Atan2(acceleration.y, acceleration.x) - (90 * DEG2RAD);
 			Rotation = heading;
 			float RandMultiplier = (float(scope Random().Next(8,10)))/10;
 			float red =  234*RandMultiplier;
@@ -36,14 +50,28 @@ namespace Boids
 		
 		}
 
-		public ~this()
+
+
+		public Vector2 limitVec(ref Vector2 vec, float maxLength) 
 		{
+
+			let lengthSquared = vec.x * vec.x + vec.y * vec.y;
+
+			if ((lengthSquared > maxLength * maxLength) && (lengthSquared > 0))
+			{
+				let ratio = maxLength / Math.Sqrt(lengthSquared);
+				vec.x *= ratio;
+				vec.y *= ratio;
+			}
+
+			return vec;
 		}
 
 		public override void Draw()
 		{
 			float* X = &position.x;
 			float* Y = &position.y;
+
 			base.Draw();
 
 			float cos = Math.Cos(Rotation);
@@ -51,17 +79,14 @@ namespace Boids
 			heading = Math.Atan2(velocity.y, velocity.x) - (90 * DEG2RAD);
 			Rotation = heading;
 
-
-
 			head = .(*X, *Y + (20 * Scale));
 			tailL = .(*X - (5 * Scale), *Y + (5 * Scale));
 			mid = .(*X, *Y + (10 * Scale));
 			tailR = .(*X + (5 * Scale), *Y + (5 * Scale));
 
-
 			Vector2[?] points = .(
 				head, tailR, mid, tailL, head
-				);
+			);
 
 			//Rotate
 			for (int i = 0; i < points.Count; i++)
@@ -77,70 +102,89 @@ namespace Boids
 
 			DrawTriangleFan(&points, 5, color);
 		}
+
+		void ApplyForce(Vector2 force){
+			acceleration+=force;
+		}
+
 		public override void Update()
 		{
-			float* X = &position.x;
-			float* Y = &position.y;
 
-			*X += velocity.x;
-			*Y += velocity.y;
+
 			//Why
-			*X = *X > GetScreenWidth() + (10 * Scale) ? 0 - (9 * Scale) : (*X < 0 - (10 * Scale) ? GetScreenWidth() + (9 * Scale) : *X);
-			*Y = *Y > GetScreenHeight() + (10 * Scale) ? 0 - (9 * Scale) : (*Y < 0 - (10 * Scale) ? GetScreenHeight() + (9 * Scale) : *Y);
+			position.x = position.x > worldWidth ? 0 : (position.x < 0 ? worldWidth : position.x);
+			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);	
+			/*if(!spatialHash)
+				tree.getItemsInRadius(ref boids,position.x,position.y,150);
+			else*/
 
-			tree.FindClose(position,ref boids);
+			hash.QueryPosition(this.position,ref boids);
 
-			velocity += align();
-			velocity += cohese();
-			velocity += separate();
+			ApplyForce(separate()*2.5f);
+			ApplyForce(align()*1.5f);
+			ApplyForce(cohese()*1.3f);
 
-			velocity.limitVec(3);
+			velocity+=acceleration;
+			velocity=limitVec(ref velocity,maxSpeed);
+
+
+			position += velocity;
+
+
+			acceleration*=0;
 			boids.Clear();
+
 		}
+
+
 
 		public Vector2 align()
 		{
 			Vector2 alignment = Vector2.Zero;
+			int total=0;
 			for (int i = 0; i < boids.Count; i++)
 			{
-				if (boids[i] != this && Vector2Distance(position,boids[i].position)<30)
+				if (boids[i] != this && Vector2Distance(position,boids[i].position)<40)
 				{
-					alignment += boids[i].velocity;
+					total++;
+					alignment += ((Boid)boids[i]).velocity;
 				}
 			}
-			if (boids.Count > 0)
+			if (total > 0 && alignment != Vector2.Zero)
 			{
-				alignment /= boids.Count;
-				alignment.limitVec(0.5f);
+				alignment/=total;
+				alignment=Vector2Normalize(alignment);
+				alignment*=maxSpeed;
+				alignment-=(velocity);
+				alignment=limitVec(ref alignment,maxForce);
 			}
 			return alignment;
-		}
-
-		public Vector2 goal()
-		{
-			Vector2 goalVec = -position - GetMousePosition();
-			goalVec.limitVec(0.5f);
-			return goalVec;
 		}
 
 		public Vector2 cohese()
 		{
 			Vector2 cohesion = Vector2.Zero;
+			int total =0;
 			for (int i = 0; i < boids.Count; i++)
 			{
-				if (boids[i] != this && Vector2Distance(position,boids[i].position)<30)
+				if (boids[i] != this && Vector2Distance(position,boids[i].position)<40)
 				{
 					cohesion += boids[i].position;
+					total++;
 				}
 			}
-			if (boids.Count > 0)
+			if (total > 0 && cohesion!=Vector2.Zero)
 			{
+				cohesion /= total;
 				if(goal)
-					cohesion+=GetMousePosition();
-				cohesion /= boids.Count;
-				cohesion -= position;
-				cohesion -= velocity;
-				cohesion.limitVec(0.1f);
+					cohesion+=(GetScreenToWorld2D(GetMousePosition(),cam)-position);
+				//Get difference between current position and average flock position
+				cohesion = cohesion - position;
+				
+				cohesion=Vector2Normalize(cohesion);
+				cohesion*=maxSpeed;
+				cohesion-=velocity;
+				cohesion=limitVec(ref cohesion,maxForce);
 			}
 			return cohesion;
 		}
@@ -155,7 +199,7 @@ namespace Boids
 				if (boids[i] != this && d<20)
 				{
 					Vector2 diff = Vector2Normalize((position - boids[i].position));
-					diff /= d*d
+					diff /= d*d;
 					//Increase separation power as we get closer
 					separation += diff;
 					total++;
@@ -164,7 +208,12 @@ namespace Boids
 			if (total > 0)
 			{
 				separation /= total;
-				separation.limitVec(1f);
+			}
+			if(Vector2Length(separation)>0){
+				separation=Vector2Normalize(separation);
+				separation*=maxSpeed;
+				separation-=velocity;
+				separation=limitVec(ref separation,maxForce);
 			}
 
 

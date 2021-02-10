@@ -4,6 +4,7 @@ Dependencies = {corlib = "*", raylib-beef = "*"}
 [Project]
 Name = "Boids"
 StartupObject = "Boids.Program"
+ProcessorMacros = ["UseKDTree"]
 
 [Configs.Debug.Win64]
 OptimizationLevel = "OgPlus"
