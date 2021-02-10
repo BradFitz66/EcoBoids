@@ -31,9 +31,6 @@ namespace Boids
 
 			return vec;
 		}
-
-		public static QuadTree<Boid> tree;
-		public static bool spatialHash=true;
 		public static SpatialHash<Entity> hash;
 
 
@@ -74,23 +71,19 @@ namespace Boids
 		}
 
 		public ~this(){
+			DeleteAndNullify!(hash);
+			delete(boids);
 		}
 		public void Init(){
-			if(!spatialHash)
-				tree=new QuadTree<Boid>(20,10,Rectangle(0,0,worldWidth,worldHeight),0);
-			else
-				hash=new SpatialHash<Entity>(200);
+			hash=new SpatialHash<Entity>(200);
 			boids=new List<Boid>();
 			let pi = Math.PI_f;
 			for(int i=0; i<5000; i++){
 				float randx=mRand.Next(0,worldWidth);
-				float randy=mRand.Next(0,worldHeight/4);
+				float randy=mRand.Next(0,worldHeight);
 				let b = new Boid(randx,randy,float(mRand.Next(10,18))/10,45);
 				cam.target=.(0,0);
-				if(!spatialHash)
-					tree.Add(b);
-				else
-					hash.Insert(b.position,b);
+				hash.Insert(b.position,b);
 				boids.Add(b);
 			}	
 		}
@@ -171,27 +164,16 @@ namespace Boids
 				}
 			}
 
-			//mousePoint.prevPos=.(mousePoint.position.x,mousePoint.position.y);
-			//mousePoint.position=GetScreenToWorld2D(GetMousePosition(),cam);
-
-			//hash.UpdatePosition(mousePoint.position,mousePoint.prevPos,mousePoint);
 
 			for(int i=0; i<boids.Count; i++){
 				boids[i].prevPosition=.(boids[i].position.x,boids[i].position.y);
 				boids[i].Update();
 			}
 
-			if(!spatialHash){
-				tree.Clear();
-				for(int i=0; i<boids.Count; i++){
-					tree.Add(boids[i]);
-				}
+			for(int i=0; i<boids.Count; i++){
+				hash.UpdatePosition(boids[i].position,boids[i].prevPosition,boids[i]);
 			}
-			else{
-				for(int i=0; i<boids.Count; i++){
-					hash.UpdatePosition(boids[i].position,boids[i].prevPosition,boids[i]);
-				}
-			}
+			
 			
 
 
@@ -208,11 +190,7 @@ namespace Boids
 					for(int i=0; i<boids.Count; i++){
 						boids[i].Draw();
 					}
-
-					if(!spatialHash)
-						tree.Draw();
-					else
-						hash.Draw();
+					hash.Draw();
 				DrawRectangleLinesEx(.(0,0,worldWidth,worldHeight),5,Color.YELLOW);
 				EndMode2D();
 	

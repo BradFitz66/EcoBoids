@@ -49,7 +49,9 @@ namespace Boids
 			color=.(uint8(red),uint8(green),uint8(blue),255);
 		
 		}
-
+		public ~this(){
+			//delete(this);
+		}
 
 
 		public Vector2 limitVec(ref Vector2 vec, float maxLength) 
@@ -114,9 +116,6 @@ namespace Boids
 			//Why
 			position.x = position.x > worldWidth ? 0 : (position.x < 0 ? worldWidth : position.x);
 			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);	
-			/*if(!spatialHash)
-				tree.getItemsInRadius(ref boids,position.x,position.y,150);
-			else*/
 
 			hash.QueryPosition(this.position,ref boids);
 

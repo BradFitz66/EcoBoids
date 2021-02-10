@@ -19,9 +19,12 @@ namespace raylib_beef.Types
 			this.y = value;
 		}
 
-		public int GetHashCode()
+		public int64 GetHashCode()
 		{
-			return x.GetHashCode() + y.GetHashCode();
+			int32 X=(int32)x;
+			int32 Y=(int32)y;
+
+			return (int64)X << 32 | Y;
 		}
 
 		/*public String ToString()
@@ -43,7 +46,7 @@ namespace raylib_beef.Types
 		// Convienient operators
 		public static bool operator==(Vector2 v1, Vector2 v2)
 		{
-			//return (v1.GetHashCode() == v2.GetHashCode());
+			return (v1.GetHashCode() == v2.GetHashCode());
 			//return (v1.x == v2.x && v1.y == v2.y);
 		}
 

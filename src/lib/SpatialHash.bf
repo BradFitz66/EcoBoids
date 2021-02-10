@@ -6,13 +6,19 @@ using raylib_beef.Types;
 using static raylib_beef.Raylib;
 public class SpatialHash<T> where T : Entity
 {
-	private Dictionary<Vector2, List<T>> dict ~ DeleteDictionaryAndValues!(_);
+	private Dictionary<Vector2, List<T>> dict;
 	private int cellSize;
 
 	public this(int cellSize)
 	{
 		this.cellSize = cellSize;
 		dict = new Dictionary<Vector2, List<T>>();
+	}
+
+	public ~this(){
+		Clear();
+		dict.Clear();
+		DeleteDictionaryAndValues!(dict);
 	}
 
 	public void Insert(Vector2 vector, T obj)
@@ -56,10 +62,11 @@ public class SpatialHash<T> where T : Entity
 
 
 		dict[gridCell].RemoveAt(index);
-		Console.WriteLine(dict[gridCell].Count);
 		if (dict[gridCell].Count == 0)
 		{
+			DeleteAndNullify!(dict[gridCell]);
 			dict.Remove(gridCell);
+
 		}
 	}
 
@@ -91,10 +98,10 @@ public class SpatialHash<T> where T : Entity
 
 	public void Clear()
 	{
-	}
-
-	public void Reset()
-	{
+		for(var i in dict) do{
+			ClearAndDeleteItems(i.value);
+			delete(i.value);
+		}
 	}
 
 	public void Draw()
