@@ -19,9 +19,9 @@ namespace Boids
 		public static GameApp app;
 		public static Camera2D cam;
 		public static SpatialHash<Entity> hash;
-		public const int worldWidth=10000;
-		public const int worldHeight=10000;
-		public const int BoidsAmount=2500;
+		public const int worldWidth=2500;
+		public const int worldHeight=2500;
+		public const int BoidsAmount=1000;
 		public const int FlockAmount=10;
 
 	}
@@ -154,7 +154,7 @@ namespace Boids
 					for(int i=0; i<flocks.Count; i++){
 						flocks[i].Draw();
 					}
-					hash.Draw();
+					//hash.Draw();
 				EndMode2D();
 			EndDrawing();
 		}
