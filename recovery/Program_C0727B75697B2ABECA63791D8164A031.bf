@@ -1,5 +1,5 @@
 using System;
-using static raylib_beef.Raylib;^
+using static raylib_beef.Raylib;
 using raylib_beef.Enums;
 namespace Boids
 {
@@ -17,8 +17,8 @@ namespace Boids
 			while (!WindowShouldClose())
 			{
 				DrawFPS(1110,720-50);
-				gApp.Update();
 				gApp.Draw();
+				gApp.Update();
 			}
 			CloseWindow();
 		}

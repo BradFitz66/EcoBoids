@@ -31,6 +31,18 @@ public class SpatialHash<T> where T : Entity
 		dict[gridPos].Add(obj);
 	}
 
+	public void QueryRelativePosition(Vector2 vector, int cellsLeft, int cellsUp, int cellsRight,int cellsDown, ref List<T> output)
+	{
+		Vector2 gridVec = VectorToGridSpace(vector);
+	    float posLeft = ((float) cellsLeft)*cellSize;
+	    float posUp = ((float) cellsUp)*cellSize;
+		float posRight = ((float) cellsRight)*cellSize; 
+	    float posDown = ((float) cellsDown)*cellSize; 
+	    QueryPosition(vector + (posLeft * Vector2.Left) + 
+	                                  (posUp * Vector2.Up) +
+	                                  (posRight * Vector2.Right )+
+										(posDown*cellsDown),ref output);
+	}
 
 	public void UpdatePosition(Vector2 newVector, Vector2 prevVector, T obj)
 	{

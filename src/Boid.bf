@@ -1,5 +1,7 @@
 using Boids.lib;
 using System;
+using System.Linq;
+
 using System.Collections;
 
 using raylib_beef.Types;
@@ -20,12 +22,15 @@ namespace Boids
 		float maxSpeed=3f;
 		float maxForce=0.03f;
 
+		public Flock flock;
+
 		public Vector2 acceleration;
 		public Vector2 prevPosition;
 		public Vector2 velocity;
 
 		bool goal = false;
-		Color color;
+		bool drawEnded;
+		public Color color=Color.BLACK;
 
 		List<Entity> boids ~ DeleteContainerAndItems!(_);
 
@@ -42,15 +47,7 @@ namespace Boids
 			acceleration = Vector2Normalize(randVector(10));
 			heading = Math.Atan2(acceleration.y, acceleration.x) - (90 * DEG2RAD);
 			Rotation = heading;
-			float RandMultiplier = (float(scope Random().Next(8,10)))/10;
-			float red =  234*RandMultiplier;
-			float green = 170*RandMultiplier;
-			float blue = 96*RandMultiplier;
-			color=.(uint8(red),uint8(green),uint8(blue),255);
 		
-		}
-		public ~this(){
-			//delete(this);
 		}
 
 
@@ -71,9 +68,9 @@ namespace Boids
 
 		public override void Draw()
 		{
+
 			float* X = &position.x;
 			float* Y = &position.y;
-
 			base.Draw();
 
 			float cos = Math.Cos(Rotation);
@@ -98,9 +95,8 @@ namespace Boids
 				points[i].y = ((oldPos.x - *X) * sin + (oldPos.y - *Y - (10 * Scale)) * cos) + *Y;
 			}
 
-			for(int i=0; i<boids.Count; i++){
-				DrawLineV(position,boids[i].position,Color.RED);
-			}
+
+
 
 			DrawTriangleFan(&points, 5, color);
 		}
@@ -115,9 +111,30 @@ namespace Boids
 
 			//Why
 			position.x = position.x > worldWidth ? 0 : (position.x < 0 ? worldWidth : position.x);
-			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);	
+			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);
 
-			hash.QueryPosition(this.position,ref boids);
+			List<Entity> left=scope List<Entity>(); 
+			List<Entity> right=scope List<Entity>(); 
+			List<Entity> down=scope List<Entity>(); 
+			List<Entity> up=scope List<Entity>();
+			List<Entity> cur=scope List<Entity>();
+
+			hash.QueryRelativePosition(this.position,1,0,0,0,ref left);
+			hash.QueryRelativePosition(this.position,0,0,1,0,ref right);
+			hash.QueryRelativePosition(this.position,0,0,0,1,ref down);
+			hash.QueryRelativePosition(this.position,0,1,0,0,ref up);
+			hash.QueryPosition(this.position,ref cur);
+			
+
+			boids.AddRange(left);
+			boids.AddRange(right);
+			boids.AddRange(down);
+			boids.AddRange(up);
+			boids.AddRange(cur);
+			
+
+
+
 
 			ApplyForce(separate()*2.5f);
 			ApplyForce(align()*1.5f);
@@ -127,12 +144,13 @@ namespace Boids
 			velocity=limitVec(ref velocity,maxSpeed);
 
 
-			position += velocity;
+			position += velocity;			
 
 
 			acceleration*=0;
-			boids.Clear();
 
+
+			boids.Clear();
 		}
 
 
@@ -143,7 +161,7 @@ namespace Boids
 			int total=0;
 			for (int i = 0; i < boids.Count; i++)
 			{
-				if (boids[i] != this && Vector2Distance(position,boids[i].position)<40)
+				if (boids[i] != this && flock.boids.Contains((Boid)boids[i]) && Vector2Distance(position,boids[i].position)<80)
 				{
 					total++;
 					alignment += ((Boid)boids[i]).velocity;
@@ -166,7 +184,7 @@ namespace Boids
 			int total =0;
 			for (int i = 0; i < boids.Count; i++)
 			{
-				if (boids[i] != this && Vector2Distance(position,boids[i].position)<40)
+				if (boids[i] != this && flock.boids.Contains((Boid)boids[i]) && Vector2Distance(position,boids[i].position)<80)
 				{
 					cohesion += boids[i].position;
 					total++;

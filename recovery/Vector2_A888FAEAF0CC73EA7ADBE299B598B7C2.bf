@@ -19,13 +19,18 @@ namespace raylib_beef.Types
 			this.y = value;
 		}
 
-		public int64 GetHashCode()
+		public int GetHashCode()
 		{
-			int32 X=(int32)x;
-			int32 Y=(int32)y;
+			return x.GetHashCode() + y.GetHashCode();
+		}
 
+		public int64 GetHashCodeDeterministic()
+		{
+			int32 X = (int32)x;
+			int32 Y = (int32)y;
 			return (int64)X << 32 | Y;
 		}
+
 
 		/*public String ToString()
 		{
@@ -42,11 +47,15 @@ namespace raylib_beef.Types
 		public static Vector2 One { get { return Raymath.Vector2One(); } }
 		public static Vector2 UnitX { get { return Vector2(1, 0); } }
 		public static Vector2 UnitY { get { return Vector2(0, 1); } }
+		public static Vector2 Left { get { return Vector2(-1, 0); } }
+		public static Vector2 Right { get { return Vector2(1, 0); } }
+		public static Vector2 Up { get { return Vector2(0, -1); } }
+		public static Vector2 Down { get { return Vector2(0, 1); } }
 
 		// Convienient operators
 		public static bool operator==(Vector2 v1, Vector2 v2)
 		{
-			return (v1.GetHashCode() == v2.GetHashCode());
+			return (v1.GetHashCodeDeterministic() == v2.GetHashCodeDeterministic());
 			//return (v1.x == v2.x && v1.y == v2.y);
 		}
 

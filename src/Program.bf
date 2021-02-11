@@ -17,8 +17,8 @@ namespace Boids
 			while (!WindowShouldClose())
 			{
 				DrawFPS(1110,720-50);
-				gApp.Update();
 				gApp.Draw();
+				gApp.Update();
 			}
 			CloseWindow();
 		}
