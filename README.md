@@ -1,7 +1,17 @@
 # BeefyBoids
-Boids in beeflang
+Boids in beeflang. Going to be a environment simulation with boids. Boids will eat food, reproduce, get hunted by predators, and die of old age. It's mostly a project for my university AI assignment 
+
+# Simulation info
+Uses a spatial hash to improve performance. Boids only care about boids in their spatial hash cell + it's neighbors. 
+
+There's also a "flock" system where boids will be assigned to flocks and will only cohese and align with boids in their own flock (assuming they're in the same or adjacent cells)
 
 
-Mostly another optimization adventure similar to my powder simulation game in Love2D. Uses a very poorly implemented KDTree for speeding it up. Has memory leaks and probably another million things wrong with it.
+# TODO
 
-There's a simple quadtree implementation as-well but it isn't actually beeing used. It should be pretty easy to swap to.
+* Multithreading (this is a BIG maybe. Performance is already fine with >1000 boids, but multithreading would mean way more would be possible)
+* Family trees (you'll be able to see the family tree of boids and how long a family has been alive as-well as extinct families of boids)
+* Predators (boids that hunt other boids. Boids will run away from predators)
+* Food 
+* Reproduction
+* Death
