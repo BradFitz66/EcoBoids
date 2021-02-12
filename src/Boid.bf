@@ -22,23 +22,20 @@ namespace Boids
 		float maxSpeed=3f;
 		float maxForce=0.03f;
 
-		public Flock flock;
+		public Flock flock ~ delete _;
 
 		public Vector2 acceleration;
 		public Vector2 prevPosition;
 		public Vector2 velocity;
 
-		bool goal = false;
-		bool drawEnded;
 		public Color color=Color.BLACK;
 
 		List<Entity> boids ~ DeleteContainerAndItems!(_);
 
-		public float heading { get; private set; }
+		public float heading;
 
 		public this(float x, float y, float s, float r)
-		{
-			aabb=Rectangle(x,y,20,20);
+		{ 
 			boids = new List<Entity>();
 			position.x = x;
 			position.y = y;
@@ -47,9 +44,10 @@ namespace Boids
 			acceleration = Vector2Normalize(randVector(10));
 			heading = Math.Atan2(acceleration.y, acceleration.x) - (90 * DEG2RAD);
 			Rotation = heading;
-		
 		}
 
+		public ~this(){
+		}
 
 		public Vector2 limitVec(ref Vector2 vec, float maxLength) 
 		{
@@ -107,9 +105,6 @@ namespace Boids
 
 		public override void Update()
 		{
-
-
-			//Why
 			position.x = position.x > worldWidth ? 0 : (position.x < 0 ? worldWidth : position.x);
 			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);
 
@@ -125,31 +120,20 @@ namespace Boids
 			hash.QueryRelativePosition(this.position,0,1,0,0,ref up);
 			hash.QueryPosition(this.position,ref cur);
 			
-
 			boids.AddRange(left);
 			boids.AddRange(right);
 			boids.AddRange(down);
 			boids.AddRange(up);
 			boids.AddRange(cur);
 			
-
-
-
-
 			ApplyForce(separate()*2.5f);
 			ApplyForce(align()*1.5f);
 			ApplyForce(cohese()*1.3f);
 
 			velocity+=acceleration;
 			velocity=limitVec(ref velocity,maxSpeed);
-
-
-			position += velocity;			
-
-
+			position += velocity;
 			acceleration*=0;
-
-
 			boids.Clear();
 		}
 
@@ -193,8 +177,6 @@ namespace Boids
 			if (total > 0 && cohesion!=Vector2.Zero)
 			{
 				cohesion /= total;
-				if(goal)
-					cohesion+=(GetScreenToWorld2D(GetMousePosition(),cam)-position);
 				//Get difference between current position and average flock position
 				cohesion = cohesion - position;
 				
@@ -216,8 +198,7 @@ namespace Boids
 				if (boids[i] != this && d<20)
 				{
 					Vector2 diff = Vector2Normalize((position - boids[i].position));
-					diff /= d*d;
-					//Increase separation power as we get closer
+					diff /= d;
 					separation += diff;
 					total++;
 				}

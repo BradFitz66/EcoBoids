@@ -10,7 +10,7 @@ using Boids.lib;
 
 /*
 	Title: GameApp
-	Description: Handles initialization of boids and updating of systems like the quadtree as-well as handling the drawing
+	Description: Handles initialization of boids and updating of systems like the spatial hash as-well as handling the drawing
 */
 namespace Boids
 {
@@ -19,46 +19,43 @@ namespace Boids
 		public static GameApp app;
 		public static Camera2D cam;
 		public static SpatialHash<Entity> hash;
+
 		public const int worldWidth=2500;
 		public const int worldHeight=2500;
 		public const int BoidsAmount=1000;
 		public const int FlockAmount=10;
-
 	}
 
 	class GameApp 
 	{
 
-		public List<Flock> flocks;
+		public List<Flock> flocks ~ delete _;
 
-		Point mousePoint;
-
-		Vector2 camVel;
 		float zoomLevel=1.0f;
-		OperatingSystem os;
 		float camSpeed=6;
 		float defaultCamSpeed=6;
-		Random mRand = new Random() ~ delete _;
+
 		public this(){
 			app=this;
-			cam=Camera2D(.(0,0),.(0,0),0,1);
-
 			Init();
 		}
 
 		public ~this(){
 			DeleteAndNullify!(hash);
-			delete(flocks);
+
 		}
 		public void Init(){
+
+			Random mRand = scope Random();
+			cam=Camera2D(.(0,0),.(0,0),0,1);
 			hash=new SpatialHash<Entity>(200);
 			
 			flocks=new List<Flock>();
 			let pi = Math.PI_f;
-			for(int i=0; i<FlockAmount; i++){
+
+			for(int i=0; i<Flock; i++){
 				float randx=mRand.Next(0,worldWidth);
 				float randy=mRand.Next(0,worldHeight);
-				Console.WriteLine(BoidsAmount/FlockAmount);
 				let f = new Flock(BoidsAmount/FlockAmount,randx,randy,1000);
 				flocks.Add(f);
 			}
@@ -74,9 +71,7 @@ namespace Boids
 		}
 		public void Update()
 		{
-			for(int i=0; i<flocks.Count; i++){
-				flocks[i].Update();
-			}
+
 			camSpeed= IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_LEFT_SHIFT) ? defaultCamSpeed*2 : defaultCamSpeed;
 
 			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_A)){
@@ -111,10 +106,7 @@ namespace Boids
 				zoomLevel=0.25f;
 			else if(zoomLevel>2)
 				zoomLevel=2;
-			
-
 			cam.zoom=zoomLevel;
-
 
 			//Mouse interaction with boids
 			if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
@@ -142,8 +134,9 @@ namespace Boids
 				}
 			}
 
-
-
+			for(int i=0; i<flocks.Count; i++){
+				flocks[i].Update();
+			}
 		}
 		public void Draw()
 		{

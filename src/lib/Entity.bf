@@ -9,7 +9,6 @@ namespace Boids.lib
 		public Vector2 position;
 		public float Scale;
 		public float Rotation;
-		public Rectangle aabb;
 		public virtual void Update() { }
 		public virtual void Draw() { }
 	}
