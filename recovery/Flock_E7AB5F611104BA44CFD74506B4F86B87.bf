@@ -13,17 +13,18 @@ namespace Boids
 	{
 		public List<Boid> boids ~ DeleteContainerAndItems!(_);
 		Color flockColor;
-
-		public this(int amount, float x, float y, int flockRadius)
+		public Color flockMixColor=Color.WHITE;
+		public this(int amount, float x, float y, int flockRadius, bool isPredatorFlock=false)
 		{
 			boids = new List<Boid>();
-			flockColor = generateRandomColor(.(255, 255, 255, 255));
+			flockColor = generateRandomColor(flockMixColor);
 			for (int i = 0; i < amount; i++)
 			{
 				Vector2 rVec = randVector(flockRadius);
 				Boid b = new Boid(x + rVec.x, y + rVec.y, 1, 0);
 				boids.Add(b);
 				b.flock = this;
+				b.isPredator=isPredatorFlock;
 				b.color = flockColor;
 				hash.Add(b);
 			}
@@ -31,7 +32,7 @@ namespace Boids
 			
 		}
 		public ~this(){
-			delete(this);
+			//delete(this);
 		}
 
 		public void Update()

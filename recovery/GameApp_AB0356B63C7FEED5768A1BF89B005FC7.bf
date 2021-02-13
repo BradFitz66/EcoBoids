@@ -20,10 +20,11 @@ namespace Boids
 		public static Camera2D cam;
 		public static SpatialHash<Entity> hash;
 
-		public const int worldWidth=2500;
-		public const int worldHeight=2500;
-		public const int BoidsAmount=1000;
-		public const int FlockAmount=10;
+		public const int worldWidth=1200*3;
+		public const int worldHeight=720*3;
+		public const int BoidsAmount=1500;
+		public const int FlockAmount=10s;
+		public const int maxPredatorCount=10;
 	}
 
 	class GameApp 
@@ -44,21 +45,24 @@ namespace Boids
 			DeleteAndNullify!(hash);
 
 		}
+		Flock predators;
 		public void Init(){
 
 			Random mRand = scope Random();
 			cam=Camera2D(.(0,0),.(0,0),0,1);
 			hash=new SpatialHash<Entity>(200);
-			
+			predators = new Flock(maxPredatorCount,worldWidth/2,worldHeight/2,100,true);
+			predators.flockMixColor=Color.RED;
 			flocks=new List<Flock>();
 			let pi = Math.PI_f;
 
-			for(int i=0; i<Flock; i++){
+			for(int i=0; i<FlockAmount; i++){
 				float randx=mRand.Next(0,worldWidth);
 				float randy=mRand.Next(0,worldHeight);
 				let f = new Flock(BoidsAmount/FlockAmount,randx,randy,1000);
 				flocks.Add(f);
 			}
+			flocks.Add(predators);
 		}
 		float angle = 0;
 		

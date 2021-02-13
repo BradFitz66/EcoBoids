@@ -6,6 +6,10 @@ using raylib_beef.Types;
 using static raylib_beef.Raylib;
 namespace Boids.lib
 {
+	/*
+		Title: SpatialHash
+		Description: A dictionary containing Vector2 keys with Lists of entities as their values. Used for spatial partitioning of the world so boids only care about other boids in close proximity which greatly increases simulation performance.
+	*/
 	public class SpatialHash<T> : Dictionary<Vector2, List<T>> where T : Entity
 	{
 		private int cellSize;
