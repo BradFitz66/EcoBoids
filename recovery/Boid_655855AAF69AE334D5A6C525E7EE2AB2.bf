@@ -9,6 +9,39 @@ using static raylib_beef.Raylib;
 using static raylib_beef.Raymath;
 namespace Boids
 {
+	struct Stats
+	{
+		public float maxSpeed { get; }
+		public float maxForce { get; }
+		public float health { get; }
+		public float age { get; }
+		public float hunger { get; }
+
+
+		//Constructor for when boids are first created
+		public this(bool isPred)
+		{
+			Random r = scope Random();
+			int modifier = isPred ? 3 : 1;
+			maxSpeed = r.Next(1, 3) * modifier;
+			maxForce = (float(r.Next(1, 3)) / 100) * modifier;
+			health = 100;
+			age = 0;
+			hunger = 0;
+		}
+
+		//Constructor for boids that are children of other boids.
+		public this(float mSpeed, float mForce, float hp)
+		{
+			maxSpeed = mSpeed;
+			maxForce = mForce;
+			health = hp;
+			age = 0;
+			hunger = 0;
+		}
+	}
+
+
 	class Boid : Entity
 	{
 		Vector2 head;
@@ -26,6 +59,7 @@ namespace Boids
 		public Vector2 velocity;
 		public bool isPredator = false;
 		public Color color = Color.BLACK;
+		Stats boidStats;
 
 		List<Entity> boids ~ DeleteContainerAndItems!(_);
 
@@ -39,8 +73,9 @@ namespace Boids
 			position.y = y;
 			Scale = s;
 			Rotation = r;
-			maxSpeed *= predator ? 3 : 1;
-			maxForce *= predator ? 2 : 1;
+			boidStats = Stats(predator);
+
+
 			acceleration = Vector2Normalize(randVector(10));
 			heading = Math.Atan2(acceleration.y, acceleration.x) - (90 * DEG2RAD);
 			Rotation = heading;
@@ -95,7 +130,7 @@ namespace Boids
 
 
 
-			DrawTriangleFan(&points, 5, !isPredator ? color : Color.BLACK);
+			DrawTriangleFan(&points, 5, isPredator ? .(155,0,0,255) :color);
 		}
 
 		void ApplyForce(Vector2 force)
@@ -112,23 +147,41 @@ namespace Boids
 			List<Entity> right = scope List<Entity>();
 			List<Entity> down = scope List<Entity>();
 			List<Entity> up = scope List<Entity>();
+
+			List<Entity> leftup = scope List<Entity>();
+			List<Entity> rightup = scope List<Entity>();
+			List<Entity> leftdown = scope List<Entity>();
+			List<Entity> rightdown = scope List<Entity>();
+
+
 			List<Entity> cur = scope List<Entity>();
 
 			hash.QueryRelativePosition(this.position, 1, 0, 0, 0, ref left);
 			hash.QueryRelativePosition(this.position, 0, 0, 1, 0, ref right);
 			hash.QueryRelativePosition(this.position, 0, 0, 0, 1, ref down);
 			hash.QueryRelativePosition(this.position, 0, 1, 0, 0, ref up);
+			hash.QueryRelativePosition(this.position, 1, 1, 0, 0, ref leftup);
+			hash.QueryRelativePosition(this.position, 1, 0, 0, 1, ref leftdown);
+			hash.QueryRelativePosition(this.position, 0, 1, 1, 0, ref rightup);
+			hash.QueryRelativePosition(this.position, 0, 0, 1, 1, ref rightdown);
 			hash.QueryPosition(this.position, ref cur);
 
 			boids.AddRange(left);
 			boids.AddRange(right);
 			boids.AddRange(down);
 			boids.AddRange(up);
+
+			boids.AddRange(leftup);
+			boids.AddRange(rightup);
+			boids.AddRange(leftdown);
+			boids.AddRange(rightdown);
 			boids.AddRange(cur);
 
 			ApplyForce(separate() * 2.5f);
 			ApplyForce(align() * 1.5f);
 			ApplyForce(cohese() * 1.3f);
+			if(!isPredator)
+				ApplyForce(flee());
 
 			velocity += acceleration;
 			velocity = limitVec(ref velocity, maxSpeed);
@@ -143,11 +196,14 @@ namespace Boids
 		{
 			Vector2 alignment = Vector2.Zero;
 			int total = 0;
-			for (int i = 0; i < boids.Count; i++)
+			if (!isPredator)
 			{
-				if (!isPredator)
+				for (int i = 0; i < boids.Count; i++)
 				{
-					if (boids[i] != this && flock.boids.Contains((Boid)boids[i]) && Vector2Distance(position, boids[i].position) < 80)
+					bool otherIsPredator = ((Boid)boids[i]).isPredator;
+					bool otherIsInFlock = flock.boids.Contains((Boid)boids[i]);
+					float dist = Vector2Distance(position, boids[i].position);
+					if (boids[i] != this && !otherIsPredator && otherIsInFlock &&dist < 80)
 					{
 						total++;
 						alignment += ((Boid)boids[i]).velocity;
@@ -165,24 +221,37 @@ namespace Boids
 			return alignment;
 		}
 
+		public Vector2 flee(){
+			Vector2 flee=Vector2.Zero;
+			for(int i=0; i<boids.Count; i++){
+				bool otherIsPredator =((Boid)boids[i]).isPredator;
+				float dist = Vector2Distance(position, boids[i].position);
+				if(otherIsPredator && dist<120){
+					flee+= -Vector2Normalize(boids[i].position-position);
+				}
+			}
+			return flee;
+		}
+
 		public Vector2 cohese()
 		{
 			Vector2 cohesion = Vector2.Zero;
 			int total = 0;
 			for (int i = 0; i < boids.Count; i++)
 			{
+				bool otherIsPredator = ((Boid)boids[i]).isPredator;
+				bool otherIsInFlock = flock.boids.Contains((Boid)boids[i]);
+				float dist = Vector2Distance(position, boids[i].position);
 				if (!isPredator)
 				{
-					if ((boids[i] != this && flock.boids.Contains((Boid)boids[i]) && Vector2Distance(position, boids[i].position) < 80))
-					{
-						bool pred = ((Boid)boids[i]).isPredator;
-						cohesion = !pred ? (cohesion + boids[i].position) : (cohesion-boids[i].position);
+					if (boids[i]!=this && !otherIsPredator && otherIsInFlock && dist<80){
+						cohesion+=boids[i].position;
 						total++;
 					}
 				}
 				else if (isPredator)
 				{
-					if ((boids[i] != this && !flock.boids.Contains((Boid)boids[i]) && Vector2Distance(position, boids[i].position) < 200))
+					if (boids[i] != this && !otherIsPredator && !otherIsInFlock)
 					{
 						cohesion += boids[i].position;
 						total++;
@@ -211,7 +280,7 @@ namespace Boids
 			{
 				let d = Vector2Distance(position, boids[i].position);
 				bool pred = ((Boid)boids[i]).isPredator;
-				if ((boids[i] != this && d < 20) || (pred && !isPredator && boids[i] != this && d < 100))
+				if ((boids[i] != this && d < 20) || (pred && !isPredator && boids[i] != this && d < 200))
 				{
 					Vector2 diff = Vector2Normalize((position - boids[i].position));
 					if ((pred && isPredator) || (!pred && !isPredator))

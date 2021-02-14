@@ -16,7 +16,6 @@ namespace Boids
 			SetTargetFPS(60);
 			while (!WindowShouldClose())
 			{
-				
 				DrawFPS(GetScreenWidth()-90,GetScreenHeight()-50);
 				gApp.Draw();
 				gApp.Update();

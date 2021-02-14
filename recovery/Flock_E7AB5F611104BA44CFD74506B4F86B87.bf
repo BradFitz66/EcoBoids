@@ -31,9 +31,6 @@ namespace Boids
 		
 			
 		}
-		public ~this(){
-			//delete(this);
-		}
 
 		public void Update()
 		{
@@ -57,9 +54,9 @@ namespace Boids
 		public Color generateRandomColor(Color mix)
 		{
 			Random random = scope Random();
-			int red = random.Next(256);
-			int green = random.Next(256);
-			int blue = random.Next(256);
+			int red = random.Next(128)+127;
+			int green = random.Next(128)+127;
+			int blue = random.Next(128)+127;
 
 			// mix the color
 			if (mix != null)

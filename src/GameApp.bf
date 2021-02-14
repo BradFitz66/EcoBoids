@@ -23,8 +23,8 @@ namespace Boids
 		public const int worldWidth=1200*3;
 		public const int worldHeight=720*3;
 		public const int BoidsAmount=1500;
-		public const int FlockAmount=10;
-		public const int maxPredatorCount=10;
+		public const int FlockAmount=20;
+		public const int maxPredatorCount=5;
 	}
 
 	class GameApp 
@@ -50,8 +50,8 @@ namespace Boids
 
 			Random mRand = scope Random();
 			cam=Camera2D(.(0,0),.(0,0),0,1);
-			hash=new SpatialHash<Entity>(200);
-			predators = new Flock(maxPredatorCount,worldWidth/2,worldHeight/2,100,true);
+			hash=new SpatialHash<Entity>(100);
+			predators = new Flock(maxPredatorCount,worldWidth/2,worldHeight/2,1000,true);
 			predators.flockMixColor=Color.RED;
 			flocks=new List<Flock>();
 			let pi = Math.PI_f;
