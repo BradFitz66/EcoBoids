@@ -2,45 +2,38 @@ using System;
 using System.Collections;
 namespace Boids.lib
 {
+	typealias StateUpdate = function void(ref Boid b);
 
-	struct State{
+	public struct State{
+		public StateUpdate update;
+		public Boid assignedTo;
+		public String stateId;
+
+		public this(Boid assigned, StateUpdate upd, String id){
+			assignedTo=assigned;
+			update=upd;
+			stateId=id;
+		}
 	}
 
-	public class Statemachine<T> : ICollection<T> where T:State
+	public class Statemachine : List<State>
 	{
+		//Current state is always at index 0
+		public State curState => this[0];
 
-
-		public this(){
-			List=new List<T>();
+		public void SwitchState(String newCurrentState){
+			int ind=FindIndex(scope (x)=>{return x.stateId==newCurrentState;});
+			if(ind==-1)
+				return;
+			State item = this[ind];
+			RemoveAtFast(ind);
+			Insert(0,item);
 		}
 
-		protected List<T> List {get;}
-
-		public T this[int index] => (T)List[index];
-
-		public void Add(T item)
-		{
-			
-		}
-
-		public void Clear()
-		{
-
-		}
-
-		public bool Contains(T item)
-		{
-			return default;
-		}
-
-		public void CopyTo(Span<T> span)
-		{
-
-		}
-
-		public bool Remove(T item)
-		{
-			return default;
+		public void Update(){
+			//Ugly, but it's the only solution. Maybe an ECS will fix this?
+			if(Count>0)
+				curState.update(ref curState.assignedTo);
 		}
 	}
 }

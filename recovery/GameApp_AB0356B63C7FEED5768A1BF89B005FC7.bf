@@ -19,7 +19,8 @@ namespace Boids
 		public static GameApp app;
 		public static Camera2D cam;
 		public static SpatialHash<Entity> hash;
-
+		public const int baseScreenWidth=1200;
+		public const int baseScreenHeight=720;
 		public const int worldWidth=1200*3;
 		public const int worldHeight=720*3;
 		public const int BoidsAmount=1500;
@@ -29,16 +30,19 @@ namespace Boids
 
 	class GameApp 
 	{
-
+		
 		public List<Flock> flocks ~ delete _;
-
+		MainMenu m;
 		float zoomLevel=1.0f;
 		float camSpeed=6;
+		bool inGame=false;
 		float defaultCamSpeed=6;
 
 		public this(){
 			app=this;
-			Init();
+			m=new MainMenu();
+
+			//Init();
 		}
 
 		public ~this(){
@@ -47,7 +51,7 @@ namespace Boids
 		}
 		Flock predators;
 		public void Init(){
-
+			inG
 			Random mRand = scope Random();
 			cam=Camera2D(.(0,0),.(0,0),0,1);
 			hash=new SpatialHash<Entity>(100);
@@ -59,7 +63,7 @@ namespace Boids
 			for(int i=0; i<FlockAmount; i++){
 				float randx=mRand.Next(0,worldWidth);
 				float randy=mRand.Next(0,worldHeight);
-				let f = new Flock(BoidsAmount/FlockAmount,randx,randy,1000);
+				let f = new Flock(BoidsAmount/FlockAmount,randx,randy,100);
 				flocks.Add(f);
 			}
 			flocks.Add(predators);
@@ -76,6 +80,11 @@ namespace Boids
 		public void Update()
 		{
 
+
+			if(!inGame){
+				m.Update();
+				return;
+			}
 			camSpeed= IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_LEFT_SHIFT) ? defaultCamSpeed*2 : defaultCamSpeed;
 
 			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_A)){
@@ -145,15 +154,22 @@ namespace Boids
 		public void Draw()
 		{
 			//Draw everything
-			BeginDrawing();
-				ClearBackground(.(255, 255, 255, 255));
-				BeginMode2D(cam);
+
+			ClearBackground(.(255, 255, 255, 255));
+			if(!inGame){
+				m.Draw();
+			}
+
+			BeginMode2D(cam);
+
+				if(inGame){
 					for(int i=0; i<flocks.Count; i++){
 						flocks[i].Draw();
 					}
-					hash.Draw();
-				EndMode2D();
-			EndDrawing();
+				}
+				//hash.Draw();
+			EndMode2D();
+
 		}
 	}
 }

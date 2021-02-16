@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", raylib-beef = "*"}
+Dependencies = {corlib = "*", raylib-beef = "*", ImGui = "*", ImGuiImplOpenGL3 = "*", glfw-beef = "*", ImGuiImplGlfw = "*"}
 
 [Project]
 Name = "Boids"
@@ -8,3 +8,6 @@ ProcessorMacros = ["UseKDTree"]
 
 [Configs.Debug.Win64]
 OptimizationLevel = "OgPlus"
+
+[Configs.Release.Win64]
+CLibType = "Dynamic"

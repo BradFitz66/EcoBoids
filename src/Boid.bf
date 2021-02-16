@@ -14,8 +14,8 @@ namespace Boids
 		public float maxSpeed { get; }
 		public float maxForce { get; }
 		public float health { get; }
-		public float age { get; }
-		public float hunger { get; }
+		public float age { get; set mut;}
+		public float hunger { get; set mut;}
 
 
 		//Constructor for when boids are first created
@@ -23,7 +23,7 @@ namespace Boids
 		{
 			Random r = scope Random();
 			int modifier = isPred ? 3 : 1;
-			maxSpeed = r.Next(1, 3) * modifier;
+			maxSpeed = (r.Next(1, 3)) * modifier;
 			maxForce = (float(r.Next(1, 3)) / 100) * modifier;
 			health = 100;
 			age = 0;
@@ -54,16 +54,20 @@ namespace Boids
 
 		public Flock flock ~ delete _;
 
-		public Vector2 acceleration;
+		public static Vector2 acceleration;
 		public Vector2 prevPosition;
 		public Vector2 velocity;
+
 		public bool isPredator = false;
+
 		public Color color = Color.BLACK;
 		Stats boidStats;
 
 		List<Entity> boids ~ DeleteContainerAndItems!(_);
 
 		public float heading;
+		Statemachine boidStates;
+
 
 		public this(float x, float y, float s, float r, bool predator = false)
 		{
@@ -79,6 +83,14 @@ namespace Boids
 			acceleration = Vector2Normalize(randVector(10));
 			heading = Math.Atan2(acceleration.y, acceleration.x) - (90 * DEG2RAD);
 			Rotation = heading;
+			boidStates=new Statemachine();
+
+
+
+			State wanderState=State(this,=>Wander,"WanderState");
+			State eatState=State(this,=>EatFood,"EatState");
+			boidStates.Add(wanderState);
+			boidStates.Add(eatState);
 		}
 
 		public ~this()
@@ -97,6 +109,23 @@ namespace Boids
 			}
 
 			return vec;
+		}
+
+		public static void Wander(ref Boid b){
+
+			b.ApplyForce(b.separate() * 2.5f);
+			b.ApplyForce(b.align() * 1.5f);
+			b.ApplyForce(b.cohese() * 1.3f);
+			if(!b.isPredator){
+				b.ApplyForce(b.flee());
+			}
+			if(b.boidStats.hunger>50 && !b.isPredator)
+				b.boidStates.SwitchState("EatState");
+		}
+		public static void EatFood(ref Boid b){
+			if(!b.isPredator)
+				b.ApplyForce(b.flee());//Always flee
+			//TODO: Implement food and eating
 		}
 
 		public override void Draw()
@@ -133,7 +162,7 @@ namespace Boids
 			DrawTriangleFan(&points, 5, isPredator ? .(155,0,0,255) :color);
 		}
 
-		void ApplyForce(Vector2 force)
+		public void ApplyForce(Vector2 force)
 		{
 			acceleration += force;
 		}
@@ -177,14 +206,14 @@ namespace Boids
 			boids.AddRange(rightdown);
 			boids.AddRange(cur);
 
-			ApplyForce(separate() * 2.5f);
-			ApplyForce(align() * 1.5f);
-			ApplyForce(cohese() * 1.3f);
-			if(!isPredator)
-				ApplyForce(flee());
+
+			//TODO: Uncomment after eating is implemented
+			//boidStats.hunger+=1*GetFrameTime();
+
+			boidStates.Update();
 
 			velocity += acceleration;
-			velocity = limitVec(ref velocity, maxSpeed);
+			velocity = limitVec(ref velocity, boidStats.maxSpeed);
 			position += velocity;
 			acceleration *= 0;
 			boids.Clear();
@@ -216,7 +245,7 @@ namespace Boids
 				alignment = Vector2Normalize(alignment);
 				alignment *= maxSpeed;
 				alignment -= (velocity);
-				alignment = limitVec(ref alignment, maxForce);
+				alignment = limitVec(ref alignment, boidStats.maxForce);
 			}
 			return alignment;
 		}
@@ -267,7 +296,7 @@ namespace Boids
 				cohesion = Vector2Normalize(cohesion);
 				cohesion *= (maxSpeed);
 				cohesion -= velocity;
-				cohesion = limitVec(ref cohesion, maxForce);
+				cohesion = limitVec(ref cohesion, boidStats.maxForce);
 			}
 			return cohesion;
 		}
@@ -300,7 +329,7 @@ namespace Boids
 				separation = Vector2Normalize(separation);
 				separation *= maxSpeed;
 				separation -= velocity;
-				separation = limitVec(ref separation, maxForce);
+				separation = limitVec(ref separation, boidStats.maxForce);
 			}
 
 
