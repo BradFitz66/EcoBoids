@@ -16,18 +16,18 @@ namespace Boids
 			SetConfigFlags(ConfigFlag.FLAG_WINDOW_RESIZABLE);
 			InitWindow(1200, 720, "Boids");
 			//SetTargetFPS(120);
-			VSync
+			
 			gApp=scope GameApp();
 			while (!WindowShouldClose())
 			{
 
 				
 				DrawFPS(GetScreenWidth()-90,GetScreenHeight()-50);
-					gApp.Update();
+				gApp.Update();
 				BeginDrawing();
-					gApp.Draw();
+				ClearBackground(.(255,255,255,255));
+				gApp.Draw();
 				EndDrawing();
-
 			}
 			CloseWindow();
 		}

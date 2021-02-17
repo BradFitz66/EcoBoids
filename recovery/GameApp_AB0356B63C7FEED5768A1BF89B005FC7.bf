@@ -51,7 +51,7 @@ namespace Boids
 		}
 		Flock predators;
 		public void Init(){
-			inG
+			inGame=true;
 			Random mRand = scope Random();
 			cam=Camera2D(.(0,0),.(0,0),0,1);
 			hash=new SpatialHash<Entity>(100);
@@ -158,6 +158,7 @@ namespace Boids
 			ClearBackground(.(255, 255, 255, 255));
 			if(!inGame){
 				m.Draw();
+				return;
 			}
 
 			BeginMode2D(cam);

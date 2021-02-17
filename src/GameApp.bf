@@ -158,6 +158,7 @@ namespace Boids
 			ClearBackground(.(255, 255, 255, 255));
 			if(!inGame){
 				m.Draw();
+				return;
 			}
 
 			BeginMode2D(cam);

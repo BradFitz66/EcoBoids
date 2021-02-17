@@ -4,67 +4,56 @@ using static raylib_beef.Raymath;
 using System;
 namespace Boids.lib
 {
-	class Button : Entity
+	/*
+	Title: Button
+	Description:Simple class to display a button with text for UI elements.
+	I should probably make a separate class called UIElement instead of using Entity and handle all position calculations inside there instead of in here.
+	*/
+	class Button : UIElement
 	{
-		public Color c;
-		public String text="";
-		public Vector2 ScreenRelativePosition;
-		Font font=Font();
-
-		public Event<delegate void()> clickEvt=default;
-
-		public this(float x, float y, float width, float height, String Text="Start")
+		public Event<delegate void()> onClick=default;
+		public Textfield Text;
+		Color cTemp;
+		public this(Vector2 pos, Vector2 size, Color c, String text) : base(pos, size, c)
 		{
-			position = .(x, y);
-			aabb = .(x, y, width, height);
-
-			ScreenRelativePosition = .(baseScreenWidth - aabb.x, baseScreenHeight - aabb.y);
-			ScreenRelativePosition = Vector2DivideV(ScreenRelativePosition, .(baseScreenWidth, baseScreenHeight));
-			text=Text;
-			c = Color.RAYWHITE;
+			Position=pos;
+			Size=size;
+			color=c;
+			cTemp=color;//Store base color
+			Bounds=.(Position.x,Position.y,Size.x,Size.y);
+			Text=new Textfield(pos,size,Color.BLACK,text,48);
+		}
+		public this(Rectangle rect, Color c, String text) : base(rect,c)
+		{
+			Position=.(rect.x,rect.y);
+			Size=.(rect.width,rect.height);
+			Bounds=rect;
+			Text=new Textfield(.(rect.x,rect.y),.(rect.width,rect.height),Color.BLACK,text,48);
+			color=c;
 		}
 
 		public override void Draw()
 		{
 			base.Draw();
-
-			DrawRectangleRec(.(position.x - aabb.width / 2, position.y - aabb.height / 2, aabb.width, aabb.height), c);
-			DrawText(text, int32(position.x - aabb.width /4), int32(position.y - aabb.height / 2),48,Color.BLACK);
-		}
-
-		public bool isWithinaabb(float x, float y){
-			return x >= position.x-aabb.width/2 && x < position.x + this.aabb.width/2 &&
-				y >= position.y-aabb.height/2 && y < position.y + this.aabb.height/2;
-
+			
+			DrawRectangleV(Position,Size,color);
+			if(Text.Text!=""){
+				Text.Draw();
+			}
 		}
 		public override void Update()
 		{
-			position.x = GetScreenWidth() * ScreenRelativePosition.x;
-			position.y = GetScreenHeight() * ScreenRelativePosition.y;
-
-			Vector2 worldMousePos = (GetMousePosition());
-			float x = worldMousePos.x;
-			float y = worldMousePos.y;
-
-			float x2 = position.x;
-			float y2 = position.y;
-
-			isMouseOver = isWithinaabb(x,y);
-
-			if (isMouseOver)
-			{
-				if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
-					c = Color.GRAY;
-					clickEvt.Invoke();
-				}
-				else
-					c = .(uint8(Color.WHITE.r/1.25f),uint8(Color.WHITE.b/1.25f),uint8(Color.WHITE.g/1.25f),255);
-			}
-			else
-			{
-				c = Color.RAYWHITE;
-			}
 			base.Update();
+			if(isMouseOver){
+				color=.(uint8(float(cTemp.r/1.1f)),uint8(float(cTemp.g/1.1f)),uint8(float(cTemp.b/1.1f)),255);
+				if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
+					color=.(uint8(float(cTemp.r/1.25f)),uint8(float(cTemp.g/1.25f)),uint8(float(cTemp.b/1.25f)),255);
+					onClick.Invoke()
+				}
+			}
+			else{
+				color=cTemp;
+			}
 		}
 	}
 }

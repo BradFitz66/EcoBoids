@@ -23,11 +23,11 @@ namespace Boids
 
 				
 				DrawFPS(GetScreenWidth()-90,GetScreenHeight()-50);
-					gApp.Update();
+				//gApp.Update();
 				BeginDrawing();
-					gApp.Draw();
+				ClearBackground(.(255,255,255,255));
+				//gApp.Draw();
 				EndDrawing();
-
 			}
 			CloseWindow();
 		}
