@@ -7,7 +7,6 @@ namespace Boids.lib
 	/*
 	Title: Button
 	Description:Simple class to display a button with text for UI elements.
-	I should probably make a separate class called UIElement instead of using Entity and handle all position calculations inside there instead of in here.
 	*/
 	class Button : UIElement
 	{
@@ -35,7 +34,7 @@ namespace Boids.lib
 		public override void Draw()
 		{
 			base.Draw();
-			
+
 			DrawRectangleV(Position,Size,color);
 			if(Text.Text!=""){
 				Text.Draw();
@@ -46,7 +45,7 @@ namespace Boids.lib
 			base.Update();
 			if(isMouseOver){
 				color=.(uint8(float(cTemp.r/1.1f)),uint8(float(cTemp.g/1.1f)),uint8(float(cTemp.b/1.1f)),255);
-				if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
+				if(IsMouseButtonPressed(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
 					color=.(uint8(float(cTemp.r/1.25f)),uint8(float(cTemp.g/1.25f)),uint8(float(cTemp.b/1.25f)),255);
 					onClick.Invoke();
 				}

@@ -49,12 +49,9 @@ namespace Boids
 		Vector2 mid;
 		Vector2 tailR;
 
-		float maxSpeed = 3f;
-		float maxForce = 0.03f;
-
 		public Flock flock ~ delete _;
 
-		public static Vector2 acceleration;
+		public Vector2 acceleration;
 		public Vector2 prevPosition;
 		public Vector2 velocity;
 
@@ -66,7 +63,7 @@ namespace Boids
 		List<Entity> boids ~ DeleteContainerAndItems!(_);
 
 		public float heading;
-		Statemachine boidStates ~ delete _;
+		Statemachine boidStates;
 
 
 		public this(float x, float y, float s, float r, bool predator = false)
@@ -89,6 +86,7 @@ namespace Boids
 
 			State wanderState=State(this,=>Wander,"WanderState");
 			State eatState=State(this,=>EatFood,"EatState");
+
 			boidStates.Add(wanderState);
 			boidStates.Add(eatState);
 		}
@@ -111,7 +109,8 @@ namespace Boids
 			return vec;
 		}
 
-		public static void Wander(ref Boid b){
+		public static void Wander(ref Entity e){
+			Boid b = (Boid)e;
 
 			b.ApplyForce(b.separate() * 2.5f);
 			b.ApplyForce(b.align() * 1.5f);
@@ -122,7 +121,8 @@ namespace Boids
 			if(b.boidStats.hunger>50 && !b.isPredator)
 				b.boidStates.SwitchState("EatState");
 		}
-		public static void EatFood(ref Boid b){
+		public static void EatFood(ref Entity e){
+			Boid b = (Boid)e;
 			if(!b.isPredator)
 				b.ApplyForce(b.flee());//Always flee
 			//TODO: Implement food and eating
@@ -207,7 +207,7 @@ namespace Boids
 			boids.AddRange(cur);
 
 
-			//TODO: Uncomment after eating is pl
+			//TODO: Uncomment after eating is implemented
 			//boidStats.hunger+=1*GetFrameTime();
 
 			boidStates.Update();
@@ -243,7 +243,7 @@ namespace Boids
 			{
 				alignment /= total;
 				alignment = Vector2Normalize(alignment);
-				alignment *= maxSpeed;
+				alignment *= boidStats.maxSpeed;
 				alignment -= (velocity);
 				alignment = limitVec(ref alignment, boidStats.maxForce);
 			}
@@ -294,7 +294,7 @@ namespace Boids
 				cohesion = cohesion - position;
 
 				cohesion = Vector2Normalize(cohesion);
-				cohesion *= (maxSpeed);
+				cohesion *= boidStats.maxSpeed;
 				cohesion -= velocity;
 				cohesion = limitVec(ref cohesion, boidStats.maxForce);
 			}
@@ -327,7 +327,7 @@ namespace Boids
 			if (Vector2Length(separation) > 0)
 			{
 				separation = Vector2Normalize(separation);
-				separation *= maxSpeed;
+				separation *= boidStats.maxSpeed;
 				separation -= velocity;
 				separation = limitVec(ref separation, boidStats.maxForce);
 			}

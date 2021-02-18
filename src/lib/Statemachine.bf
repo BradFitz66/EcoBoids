@@ -2,14 +2,16 @@ using System;
 using System.Collections;
 namespace Boids.lib
 {
-	typealias StateUpdate = function void(ref Boid b);
-
+	/*
+	Title:
+	*/
+	typealias StateUpdate = function void(ref Entity e);
 	public struct State{
 		public StateUpdate update;
-		public Boid assignedTo;
+		public Entity assignedTo;
 		public String stateId;
 
-		public this(Boid assigned, StateUpdate upd, String id){
+		public this(Entity assigned, StateUpdate upd, String id){
 			assignedTo=assigned;
 			update=upd;
 			stateId=id;
@@ -31,7 +33,6 @@ namespace Boids.lib
 		}
 
 		public void Update(){
-			//Ugly, but it's the only solution. Maybe an ECS will fix this?
 			if(Count>0)
 				curState.update(ref curState.assignedTo);
 		}

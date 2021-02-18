@@ -1,5 +1,5 @@
 FileVersion = 1
-Projects = {Boids = {Path = "."}, raylib-beef = "*", ImGui = "*", ImGuiImplOpenGL3 = "*", glfw-beef = "*", ImGuiImplGlfw = "*"}
+Projects = {Boids = {Path = "."}, raylib-beef = "*"}
 
 [Workspace]
 StartupProject = "Boids"

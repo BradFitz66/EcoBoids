@@ -6,6 +6,10 @@ using static raylib_beef.Physac;
 using System.Collections;
 namespace Boids.lib
 {
+	/*
+	Title: Entity
+	Description: Base class for entities such as Boids
+	*/
 	class Entity
 	{
 		public Vector2 position;
@@ -14,7 +18,6 @@ namespace Boids.lib
 		public Rectangle aabb=.(0,0,0,0);
 		
 		public bool isMouseOver;
-
 
 		public virtual void Update() {}
 		public virtual void Draw() {}

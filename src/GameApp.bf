@@ -17,12 +17,19 @@ namespace Boids
 	//Global stuff
 	static{
 		public static GameApp app;
+
 		public static Camera2D cam;
+
 		public static SpatialHash<Entity> hash;
+
+		//Width and height of the screen when first created. This is used to calculate screen relative positions for UI elements.
 		public const int baseScreenWidth=1200;
 		public const int baseScreenHeight=720;
+
 		public const int worldWidth=1200*3;
 		public const int worldHeight=720*3;
+
+
 		public const int BoidsAmount=1500;
 		public const int FlockAmount=20;
 		public const int maxPredatorCount=5;
@@ -41,24 +48,25 @@ namespace Boids
 		public this(){
 			app=this;
 			m=new MainMenu();
-
-			//Init();
 		}
 
 		public ~this(){
 			DeleteAndNullify!(hash);
-
 		}
 		Flock predators;
 		public void Init(){
+			//Initialize simulation
 			inGame=true;
 			Random mRand = scope Random();
+
 			cam=Camera2D(.(0,0),.(0,0),0,1);
+
 			hash=new SpatialHash<Entity>(100);
+
 			predators = new Flock(maxPredatorCount,worldWidth/2,worldHeight/2,1000,true);
 			predators.flockMixColor=Color.RED;
+
 			flocks=new List<Flock>();
-			let pi = Math.PI_f;
 
 			for(int i=0; i<FlockAmount; i++){
 				float randx=mRand.Next(0,worldWidth);
@@ -117,8 +125,8 @@ namespace Boids
 			zoomLevel+=GetMouseWheelMove()*0.05f;
 			if(zoomLevel<0.25f)
 				zoomLevel=0.25f;
-			else if(zoomLevel>2)
-				zoomLevel=2;
+			else if(zoomLevel>1.5f)
+				zoomLevel=1.5f;
 			cam.zoom=zoomLevel;
 
 			//Mouse interaction with boids
@@ -168,7 +176,7 @@ namespace Boids
 						flocks[i].Draw();
 					}
 				}
-				//hash.Draw();
+				hash.Draw();
 			EndMode2D();
 
 		}

@@ -8,6 +8,10 @@ namespace Boids.lib
 		CORNER,
 		CENTER
 	}
+	/*
+		Title: UIElement
+		Description: Base class for UI elements such as buttons, textfields, etc.
+	*/
 	class UIElement
 	{
 		public Vector2 Position;
@@ -25,8 +29,7 @@ namespace Boids.lib
 			
 		}
 		private bool IsMouseOver(){
-			Vector2 worldMousePos=GetScreenToWorld2D(GetMousePosition(),cam);
-			return CheckCollisionPointRec(GetMousePosition(),.(Bounds.x-Bounds.width/2,Bounds.y-Bounds.height/2,Bounds.width,Bounds.height));
+			return CheckCollisionPointRec(GetMousePosition(),.(Position.x,Position.y,Bounds.width,Bounds.height));
 		}
 		private void UpdateRelativePosition(){
 			RelativePosition=Vector2DivideV(.(baseScreenWidth - (pivot==Pivot.CORNER? Bounds.x : Bounds.x + (Bounds.width/2)), baseScreenHeight - (pivot==Pivot.CORNER? Bounds.y : Bounds.y + (Bounds.height/2))),.(baseScreenWidth,baseScreenHeight));
@@ -36,6 +39,7 @@ namespace Boids.lib
 			UpdateRelativePosition();
 			Position.x=GetScreenWidth()*RelativePosition.x;
 			Position.y=GetScreenHeight()*RelativePosition.y;
+
 		}
 		public virtual void Update(){
 		}

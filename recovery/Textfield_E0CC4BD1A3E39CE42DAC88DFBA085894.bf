@@ -7,8 +7,6 @@ namespace Boids.lib
 	/*
 	Title: Textfield
 	Description:Simple class to display text for UI elements.
-	I should probably make a separate class called UIElement instead of using Entity and handle all position calculations inside there instead of in here.
-
 	*/
 	class Textfield : UIElement
 	{

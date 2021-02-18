@@ -1,7 +1,0 @@
-
-namespace Boids
-{
-	class Point;
-	{
-	}
-}

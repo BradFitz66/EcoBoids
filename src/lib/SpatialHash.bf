@@ -131,7 +131,6 @@ namespace Boids.lib
 
 				if (index > this[oldGridCell].Count || index < 0)
 				{
-					Console.WriteLine("What the fuck?");
 					return false;
 				}
 				this[oldGridCell].RemoveAt(index);

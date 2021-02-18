@@ -1,5 +1,5 @@
 FileVersion = 1
-Dependencies = {corlib = "*", raylib-beef = "*", ImGui = "*", ImGuiImplOpenGL3 = "*", glfw-beef = "*", ImGuiImplGlfw = "*"}
+Dependencies = {corlib = "*", raylib-beef = "*"}
 
 [Project]
 Name = "Boids"
