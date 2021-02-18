@@ -1,4 +1,4 @@
-# BeefyBoids
+# EcoBoids
 Boids in beeflang. Going to be a environment simulation with boids. Boids will eat food, reproduce, get hunted by predators, and die of old age. It's mostly a project for my university AI assignment 
 
 # Simulation info
