@@ -6,53 +6,31 @@ namespace Boids
 {
 	public class MainMenu
 	{
-		Button b = new Button(.(600, 360), .(200, 50), Color.RAYWHITE, "Start");
-		Textfield t = new Textfield(.(600, 500), .(200, 50), Color.BLACK, "EcoBoid", 64);
-		Textfield t2 = new Textfield(.(600, 425), .(200, 50), Color.BLACK, "An ecosystem simulation using boids", 24);
-		InputField i = new InputField(.(600, 460), .(300, 50), Color.RAYWHITE, "Boid amount");
+		Button button = new Button(.(500, 360), .(200, 50), Color.RAYWHITE, "Start");
+		Textfield title = new Textfield(.(450, 250), .(200, 50), Color.BLACK, "EcoBoid", 64);
+		Textfield titleSub = new Textfield(.(38, 300), .(200, 50), Color.BLACK, "An ecosystem simulation using boids", 24);
+		
 
-		bool _isEnteringStuff = false;
-
-		bool isEnteringStuff
-		{
-			get { return _isEnteringStuff; }
-			set
-			{
-				b.Text.Text = value ? "Begin" : "Start";^
-				_isEnteringStuff = value;
-			}
-		};
 
 		public this()
 		{
-			b.onClick.Add(new () =>
+			button.onClick.Add(new () =>
 				{
-					if (!isEnteringStuff)
-						{ isEnteringStuff = true; }
-					else
-						{ app.Init(); }
+					app.Init();
 				}
 			);
 		}
 		public void Draw()
 		{
-			if (!isEnteringStuff)
-			{
-				t.Draw();
-				t2.Draw();
-			}
-			else
-				i.Draw();
+			title.Draw();
+			titleSub.Draw();
 
-			b.Draw();
+			
+			button.Draw();
 		}
 		public void Update()
 		{
-			b.Update();
-			if (isEnteringStuff)
-			{
-				i.Update();
-			}
+			button.Update();
 		}
 	}
 }

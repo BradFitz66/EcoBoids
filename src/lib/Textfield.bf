@@ -12,7 +12,7 @@ namespace Boids.lib
 	{
 		public String Text;
 		float textWidth;
-		int32 fontSize=12;
+		public int32 fontSize;
 		Color cTemp;
 		public this(Vector2 pos, Vector2 size, Color c, String text, int32 fontsize=12) : base(pos, size, c)
 		{

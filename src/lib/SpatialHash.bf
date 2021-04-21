@@ -79,7 +79,6 @@ namespace Boids.lib
 		{
 			for (var i in this) do
 				{
-					ClearAndDeleteItems(i.value);
 					delete (i.value);
 				}
 		}

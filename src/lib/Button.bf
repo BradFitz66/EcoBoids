@@ -11,7 +11,7 @@ namespace Boids.lib
 	class Button : UIElement
 	{
 		public Event<delegate void()> onClick=default;
-		public Textfield Text;
+		public Textfield TextField;
 		Color cTemp;
 		public this(Vector2 pos, Vector2 size, Color c, String text) : base(pos, size, c)
 		{
@@ -20,24 +20,23 @@ namespace Boids.lib
 			color=c;
 			cTemp=color;//Store base color
 			Bounds=.(Position.x,Position.y,Size.x,Size.y);
-			Text=new Textfield(pos,size,Color.BLACK,text,48);
+			TextField=new Textfield(pos,size,Color.BLACK,text,48);
 		}
 		public this(Rectangle rect, Color c, String text) : base(rect,c)
 		{
 			Position=.(rect.x,rect.y);
 			Size=.(rect.width,rect.height);
 			Bounds=rect;
-			Text=new Textfield(.(rect.x,rect.y),.(rect.width,rect.height),Color.BLACK,text,48);
+			TextField=new Textfield(.(rect.x,rect.y),.(rect.width,rect.height),Color.BLACK,text,48);
 			color=c;
 		}
 
 		public override void Draw()
 		{
 			base.Draw();
-
 			DrawRectangleV(Position,Size,color);
-			if(Text.Text!=""){
-				Text.Draw();
+			if(TextField.Text!=""){
+				TextField.Draw();
 			}
 		}
 		public override void Update()

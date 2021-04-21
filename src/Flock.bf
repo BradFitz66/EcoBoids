@@ -9,38 +9,41 @@ namespace Boids
 	Title: Flock
 	Description: A flock that contains a set amount of boids. Boids will only cohese and align with their own flock.
 	*/
-	class Flock 
+	class Flock
 	{
-		public List<Boid> boids ~ DeleteContainerAndItems!(_);
-		Color flockColor;
-		public Color flockMixColor=Color.WHITE;
+		public List<Boid> boids ~ delete _;
+		public Color flockColor{get; private set;};
+		public Color flockMixColor = Color.WHITE;
 
-		public this(int amount, float x, float y, int flockRadius, bool isPredatorFlock=false)
+		public this(int amount, float x, float y, int flockRadius, bool isPredatorFlock = false)
 		{
 			boids = new List<Boid>();
 			flockColor = generateRandomColor(flockMixColor);
 			for (int i = 0; i < amount; i++)
 			{
 				Vector2 rVec = randVector(flockRadius);
-				Boid b = new Boid(x + rVec.x, y + rVec.y, 1, 0,isPredatorFlock);
+				Boid b = new Boid(x + rVec.x, y + rVec.y, 1, 0, isPredatorFlock);
 				boids.Add(b);
 				b.flock = this;
 				b.color = flockColor;
 				hash.Add(b);
 			}
-		
-			
 		}
 
 		public void Update()
 		{
 			for (int i = 0; i < boids.Count; i++)
 			{
-				boids[i].prevPosition = .(boids[i].position.x,boids[i].position.y);
+				if (boids[i].deadFlag)
+				{
+					DeleteAndNullify!(boids[i]);
+					boids.Remove(boids[i]);
+					continue;
+				}
+				boids[i].prevPosition = .(boids[i].position.x, boids[i].position.y);
 				boids[i].Update();
 				hash.UpdatePosition(boids[i].position, boids[i].prevPosition, boids[i]);
-			} 
-
+			}
 		}
 
 
@@ -54,9 +57,9 @@ namespace Boids
 		public Color generateRandomColor(Color mix)
 		{
 			Random random = scope Random();
-			int red = random.Next(128)+63;
-			int green = random.Next(128)+63;
-			int blue = random.Next(128)+63;
+			int red = random.Next(128) + 63;
+			int green = random.Next(128) + 63;
+			int blue = random.Next(128) + 63;
 
 			// mix the color
 			if (mix != null)

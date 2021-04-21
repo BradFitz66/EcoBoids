@@ -11,3 +11,4 @@ OptimizationLevel = "OgPlus"
 
 [Configs.Release.Win64]
 CLibType = "Dynamic"
+VectorizeLoops = true

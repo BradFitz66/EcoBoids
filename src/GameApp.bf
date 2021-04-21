@@ -6,6 +6,7 @@ using raylib_beef.Types;
 using static raylib_beef.Raymath;
 
 using Boids.lib;
+using System.Diagnostics;
 
 
 /*
@@ -17,7 +18,7 @@ namespace Boids
 	//Global stuff
 	static{
 		public static GameApp app;
-
+		public static bool Paused=false;
 		public static Camera2D cam;
 
 		public static SpatialHash<Entity> hash;
@@ -30,9 +31,10 @@ namespace Boids
 		public const int worldHeight=720*3;
 
 
-		public const int BoidsAmount=1500;
+		public const int BoidsAmount=1000;
 		public const int FlockAmount=20;
 		public const int maxPredatorCount=5;
+
 	}
 
 	class GameApp 
@@ -44,16 +46,20 @@ namespace Boids
 		float camSpeed=6;
 		bool inGame=false;
 		float defaultCamSpeed=6;
-
+		Flock predators;
+		Stopwatch keyPressDebounce;
+		Button minimizeButton ~ delete _;
+		bool flockStatsMinimized=false;
 		public this(){
 			app=this;
 			m=new MainMenu();
+			keyPressDebounce=new .()..Start();
 		}
 
 		public ~this(){
 			DeleteAndNullify!(hash);
 		}
-		Flock predators;
+
 		public void Init(){
 			//Initialize simulation
 			inGame=true;
@@ -61,6 +67,10 @@ namespace Boids
 
 			cam=Camera2D(.(0,0),.(0,0),0,1);
 
+			minimizeButton=new Button(.(200,0),.(100,20),Color.RAYWHITE, "");
+			minimizeButton.TextField.fontSize=24;
+			
+			minimizeButton.onClick.Add(new () => {Debug.WriteLine("AAA"); flockStatsMinimized=!flockStatsMinimized;});
 			hash=new SpatialHash<Entity>(100);
 
 			predators = new Flock(maxPredatorCount,worldWidth/2,worldHeight/2,1000,true);
@@ -76,7 +86,6 @@ namespace Boids
 			}
 			flocks.Add(predators);
 		}
-		float angle = 0;
 		
 
 		public int32 GetScreenHeightWithZoom(){
@@ -88,11 +97,14 @@ namespace Boids
 		public void Update()
 		{
 
-
+			//Only update main menu if not in game
 			if(!inGame){
 				m.Update();
 				return;
 			}
+
+			minimizeButton.Update();
+
 			camSpeed= IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_LEFT_SHIFT) ? defaultCamSpeed*2 : defaultCamSpeed;
 
 			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_A)){
@@ -129,36 +141,58 @@ namespace Boids
 				zoomLevel=1.5f;
 			cam.zoom=zoomLevel;
 
-			//Mouse interaction with boids
-			if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
-				List<Entity> b = scope List<Entity>();
-				Vector2 mousePosWorld=GetScreenToWorld2D(GetMousePosition(),cam);
-				
-				hash.QueryPosition(mousePosWorld,ref b);
+			minimizeButton.TextField.Text= !flockStatsMinimized ? "Minimize" : "Maximize";
 
-				for(int i=0;  i<b.Count; i++){
-					if(Vector2Distance(mousePosWorld,b[i].position)<50){
-						((Boid)b[i]).velocity+= Vector2Normalize(b[i].position-mousePosWorld);
+			if(!Paused){
+
+				//Mouse interaction with boids
+				/*if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_LEFT_BUTTON)){
+					List<Entity> b = scope List<Entity>();
+					Vector2 mousePosWorld=GetScreenToWorld2D(GetMousePosition(),cam);
+					
+					hash.QueryPosition(mousePosWorld,ref b);
+	
+					for(int i=0;  i<b.Count; i++){
+						if(Vector2Distance(mousePosWorld,b[i].position)<50){
+							((Boid)b[i]).velocity+= Vector2Normalize(b[i].position-mousePosWorld);
+						}
 					}
 				}
-			}
-
-			if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_RIGHT_BUTTON)){
-				List<Entity> b = scope List<Entity>();
-				Vector2 mousePosWorld=GetScreenToWorld2D(GetMousePosition(),cam);
-				hash.QueryPosition(mousePosWorld,ref b);
-
-				for(int i=0;  i<b.Count; i++){
-
-					((Boid)b[i]).velocity+= -Vector2Normalize(b[i].position-mousePosWorld)*4;
-					
+	
+				if(IsMouseButtonDown(raylib_beef.Enums.MouseButton.MOUSE_RIGHT_BUTTON)){
+					List<Entity> b = scope List<Entity>();
+					Vector2 mousePosWorld=GetScreenToWorld2D(GetMousePosition(),cam);
+					hash.QueryPosition(mousePosWorld,ref b);
+	
+					for(int i=0;  i<b.Count; i++){
+	
+						((Boid)b[i]).velocity+= -Vector2Normalize(b[i].position-mousePosWorld)*4;
+						
+					}
+				}*/
+				for(int i=0; i<flocks.Count; i++){
+					flocks[i].Update();
 				}
 			}
 
-			for(int i=0; i<flocks.Count; i++){
-				flocks[i].Update();
+			if(IsKeyDown(raylib_beef.Enums.KeyboardKey.KEY_P) && keyPressDebounce.Elapsed.TotalMilliseconds>500){
+				Paused=!Paused;
+				keyPressDebounce.Restart();
 			}
+
+		
 		}
+
+		public int GetBoidAmount(){
+			int boidCount=0;
+
+			for(int i=0; i<flocks.Count; i++){
+				boidCount+=flocks[i].boids.Count;
+			}
+
+			return boidCount;
+		}
+
 		public void Draw()
 		{
 			//Draw everything
@@ -170,7 +204,6 @@ namespace Boids
 			}
 
 			BeginMode2D(cam);
-
 				if(inGame){
 					for(int i=0; i<flocks.Count; i++){
 						flocks[i].Draw();
@@ -179,6 +212,22 @@ namespace Boids
 				hash.Draw();
 			EndMode2D();
 
+			//UI drawing
+			if(!flockStatsMinimized){
+				for(int i=0; i<flocks.Count; i++){
+					if(flocks[i].flockMixColor==.RED)
+						continue;
+					DrawText(scope $"Flock {i}: {flocks[i].boids.Count}",0,int32(0+(20*i)),20,flocks[i].flockColor);
+				}
+
+			}
+			else{
+				DrawText(scope $"Boids amount: {GetBoidAmount()}",0,0,20,Color.BLACK);
+			}
+			minimizeButton.Draw();
+			
+			if(Paused)
+				DrawText("Simulation paused",  GetScreenWidth()/2,0,28,Color.BLACK);
 		}
 	}
 }

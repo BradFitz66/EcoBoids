@@ -11,20 +11,20 @@ namespace Boids
 {
 	struct Stats
 	{
-		public float maxSpeed { get; }
-		public float maxForce { get; }
-		public float health { get; }
-		public float age { get; set mut;}
-		public float hunger { get; set mut;}
+		public float maxSpeed { get; set mut; }
+		public float maxForce { get; set mut; }
+		public float health { get; set mut;}
+		public float age { get; set mut; }
+		public float hunger { get; set mut; }
 
 
 		//Constructor for when boids are first created
 		public this(bool isPred)
 		{
 			Random r = scope Random();
-			int modifier = isPred ? 3 : 1;
-			maxSpeed = (r.Next(1, 3)) * modifier;
-			maxForce = (float(r.Next(1, 3)) / 100) * modifier;
+			int modifier = isPred ? 2 : 1;
+			maxSpeed = (r.Next(1* modifier, 3));
+			maxForce = (float(r.Next(1* modifier, 3)) / 100) * modifier;
 			health = 100;
 			age = 0;
 			hunger = 0;
@@ -49,7 +49,9 @@ namespace Boids
 		Vector2 mid;
 		Vector2 tailR;
 
-		public Flock flock ~ delete _;
+		public bool deadFlag {get; private set;}
+
+		public Flock flock;
 
 		public Vector2 acceleration;
 		public Vector2 prevPosition;
@@ -60,7 +62,7 @@ namespace Boids
 		public Color color = Color.BLACK;
 		Stats boidStats;
 
-		List<Entity> boids ~ DeleteContainerAndItems!(_);
+		List<Entity> boids;
 
 		public float heading;
 		Statemachine boidStates;
@@ -75,24 +77,24 @@ namespace Boids
 			Scale = s;
 			Rotation = r;
 			boidStats = Stats(predator);
-
+			aabb = .(0, 0, 30, 30);
 
 			acceleration = Vector2Normalize(randVector(10));
 			heading = Math.Atan2(acceleration.y, acceleration.x) - (90 * DEG2RAD);
 			Rotation = heading;
-			boidStates=new Statemachine();
+			boidStates = new Statemachine();
 
+			onClick.Add(new ()=>{BoidClicked();});
 
-
-			State wanderState=State(this,=>Wander,"WanderState");
-			State eatState=State(this,=>EatFood,"EatState");
-
+			State wanderState = State(this, => Wander, "WanderState");
+			State eatState = State(this, => EatFood, "EatState");
 			boidStates.Add(wanderState);
 			boidStates.Add(eatState);
 		}
 
 		public ~this()
 		{
+			//delete boids;
 		}
 
 		public Vector2 limitVec(ref Vector2 vec, float maxLength)
@@ -109,23 +111,30 @@ namespace Boids
 			return vec;
 		}
 
-		public static void Wander(ref Entity e){
+		public static void Wander(ref Entity e)
+		{
 			Boid b = (Boid)e;
 
 			b.ApplyForce(b.separate() * 2.5f);
 			b.ApplyForce(b.align() * 1.5f);
 			b.ApplyForce(b.cohese() * 1.3f);
-			if(!b.isPredator){
+			if (!b.isPredator)
+			{
 				b.ApplyForce(b.flee());
 			}
-			if(b.boidStats.hunger>50 && !b.isPredator)
+			if (b.boidStats.hunger > 50 && !b.isPredator)
 				b.boidStates.SwitchState("EatState");
 		}
-		public static void EatFood(ref Entity e){
+		public static void EatFood(ref Entity e)
+		{
 			Boid b = (Boid)e;
-			if(!b.isPredator)
+			if (!b.isPredator)
 				b.ApplyForce(b.flee());//Always flee
 			//TODO: Implement food and eating
+		}
+		public static void Reproduce(ref Entity e)
+		{
+			Boid b = (Boid)e;
 		}
 
 		public override void Draw()
@@ -139,6 +148,8 @@ namespace Boids
 			heading = Math.Atan2(velocity.y, velocity.x) - (90 * DEG2RAD);
 			Rotation = heading;
 
+			aabb = .((float) *X - 10, (float) *Y - 10, 20, 20);
+
 			head = .(*X, *Y + (20 * Scale));
 			tailL = .(*X - (5 * Scale), *Y + (5 * Scale));
 			mid = .(*X, *Y + (10 * Scale));
@@ -146,7 +157,7 @@ namespace Boids
 
 			Vector2[?] points = .(
 				head, tailR, mid, tailL, head
-				);
+			);
 
 			//Rotate
 			for (int i = 0; i < points.Count; i++)
@@ -156,10 +167,18 @@ namespace Boids
 				points[i].y = ((oldPos.x - *X) * sin + (oldPos.y - *Y - (10 * Scale)) * cos) + *Y;
 			}
 
+			if (IsMouseOver())
+				DrawText("Hello", int32(position.x - 10), int32(position.y - 10), 12, Color.RED);
 
+			for(int i=0; i<boids.Count; i++){
+				bool otherIsPredator = ((Boid)boids[i]).isPredator && !isPredator;
+				float dist = Vector2Distance(((Boid)boids[i]).position,position);
+				if(otherIsPredator && dist<40){
+					DrawLine((int32)position.x,(int32)position.y,(int32)boids[i].position.x,(int32)boids[i].position.y,Color.YELLOW);
+				}
+			}
 
-
-			DrawTriangleFan(&points, 5, isPredator ? .(155,0,0,255) :color);
+			DrawTriangleFan(&points, 5, isPredator ? .(155, 0, 0, 255) : color);
 		}
 
 		public void ApplyForce(Vector2 force)
@@ -167,11 +186,8 @@ namespace Boids
 			acceleration += force;
 		}
 
-		public override void Update()
+		public void GetBoidsInRange(ref List<Entity> boids)
 		{
-			position.x = position.x > worldWidth ? 0 : (position.x < 0 ? worldWidth : position.x);
-			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);
-
 			List<Entity> left = scope List<Entity>();
 			List<Entity> right = scope List<Entity>();
 			List<Entity> down = scope List<Entity>();
@@ -206,9 +222,36 @@ namespace Boids
 			boids.AddRange(rightdown);
 			boids.AddRange(cur);
 
+		}
+
+		public void BoidClicked(){
+			boidStats.health=-100;
+		}
+
+		public override void Update()
+		{
+			base.Update();
+
+			if(boidStats.health<=0){
+				deadFlag=true;
+			}
+			if(deadFlag)
+				return;
+
+			if(boidStats.health<50){
+				//If boid's health is lower than threshold, start decreasing it (stops a quirk with simulation where there would be a lot of slow nearly-dead boids)
+				boidStats.health-=20*GetFrameTime();
+			}
+
+			position.x = position.x > worldWidth ? 0 : (position.x < 0 ? worldWidth : position.x);
+			position.y = position.y > worldHeight ? 0 : (position.y < 0 ? worldHeight : position.y);
+
+
 
 			//TODO: Uncomment after eating is implemented
 			//boidStats.hunger+=1*GetFrameTime();
+
+			GetBoidsInRange(ref boids);
 
 			boidStates.Update();
 
@@ -216,7 +259,21 @@ namespace Boids
 			velocity = limitVec(ref velocity, boidStats.maxSpeed);
 			position += velocity;
 			acceleration *= 0;
+
+			for(int i=0; i<boids.Count; i++){
+				bool otherIsPredator = ((Boid)boids[i]).isPredator && !isPredator;
+				float dist = Vector2Distance(((Boid)boids[i]).position,position);
+				if(otherIsPredator && dist<40){
+					boidStats.health-=10*GetFrameTime();
+
+					boidStats.maxSpeed -= 0.05f*GetFrameTime();
+					boidStats.maxForce -= 0.05f*GetFrameTime();
+				}
+			}
+
 			boids.Clear();
+
+
 		}
 
 
@@ -232,7 +289,7 @@ namespace Boids
 					bool otherIsPredator = ((Boid)boids[i]).isPredator;
 					bool otherIsInFlock = flock.boids.Contains((Boid)boids[i]);
 					float dist = Vector2Distance(position, boids[i].position);
-					if (boids[i] != this && !otherIsPredator && otherIsInFlock &&dist < 80)
+					if (boids[i] != this && !otherIsPredator && otherIsInFlock && dist < 80)
 					{
 						total++;
 						alignment += ((Boid)boids[i]).velocity;
@@ -250,13 +307,16 @@ namespace Boids
 			return alignment;
 		}
 
-		public Vector2 flee(){
-			Vector2 flee=Vector2.Zero;
-			for(int i=0; i<boids.Count; i++){
-				bool otherIsPredator =((Boid)boids[i]).isPredator;
+		public Vector2 flee()
+		{
+			Vector2 flee = Vector2.Zero;
+			for (int i = 0; i < boids.Count; i++)
+			{
+				bool otherIsPredator = ((Boid)boids[i]).isPredator;
 				float dist = Vector2Distance(position, boids[i].position);
-				if(otherIsPredator && dist<120){
-					flee+= -Vector2Normalize(boids[i].position-position)/4;
+				if (otherIsPredator && dist < 120)
+				{
+					flee += -Vector2Normalize(boids[i].position - position) / 4;
 				}
 			}
 			return flee;
@@ -273,8 +333,9 @@ namespace Boids
 				float dist = Vector2Distance(position, boids[i].position);
 				if (!isPredator)
 				{
-					if (boids[i]!=this && !otherIsPredator && otherIsInFlock && dist<80){
-						cohesion+=boids[i].position;
+					if (boids[i] != this && !otherIsPredator && otherIsInFlock && dist < 80)
+					{
+						cohesion += boids[i].position;
 						total++;
 					}
 				}

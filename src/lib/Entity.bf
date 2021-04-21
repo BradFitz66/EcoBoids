@@ -3,6 +3,7 @@ using static raylib_beef.Raylib;
 using static raylib_beef.Raymath;
 using static raylib_beef.Physac;
 
+using System;
 using System.Collections;
 namespace Boids.lib
 {
@@ -16,10 +17,22 @@ namespace Boids.lib
 		public float Scale;
 		public float Rotation;
 		public Rectangle aabb=.(0,0,0,0);
-		
-		public bool isMouseOver;
+		public Event<delegate void()> onClick;
+		public bool IsMouseOver(){
+			return CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(),cam),aabb);
+		}
 
-		public virtual void Update() {}
+		public ~this(){
+			onClick.Dispose();
+		}
+
+		[Inline]
+		public virtual void Update() {
+			if(IsMouseOver() && IsMouseButtonPressed(.MOUSE_LEFT_BUTTON)){
+				Console.Write("Clicked!");
+				onClick.Invoke();
+			}
+		}
 		public virtual void Draw() {}
 	}
 }
