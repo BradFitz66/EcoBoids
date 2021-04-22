@@ -17,20 +17,24 @@ namespace Boids.lib
 		public float Scale;
 		public float Rotation;
 		public Rectangle aabb=.(0,0,0,0);
-		public Event<delegate void()> onClick;
+		public Event<delegate void()> onLeftClick;
+		public Event<delegate void()> onRightClick;
 		public bool IsMouseOver(){
 			return CheckCollisionPointRec(GetScreenToWorld2D(GetMousePosition(),cam),aabb);
 		}
 
 		public ~this(){
-			onClick.Dispose();
+			onLeftClick.Dispose();
+			onRightClick.Dispose();
 		}
 
 		[Inline]
 		public virtual void Update() {
 			if(IsMouseOver() && IsMouseButtonPressed(.MOUSE_LEFT_BUTTON)){
-				Console.Write("Clicked!");
-				onClick.Invoke();
+				onLeftClick.Invoke();
+			}
+			if(IsMouseOver() && IsMouseButtonPressed(.MOUSE_RIGHT_BUTTON)){
+				onRightClick.Invoke();
 			}
 		}
 		public virtual void Draw() {}

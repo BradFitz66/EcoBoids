@@ -8,7 +8,9 @@ namespace Boids.lib
 {
 	/*
 		Title: SpatialHash
-		Description: A dictionary containing Vector2 keys with Lists of entities as their values. Used for spatial partitioning of the world so boids only care about other boids in close proximity which greatly increases simulation performance.
+		Description: A dictionary containing Vector2 keys with Lists of entities as their values. Used for spatial
+	partitioning of the world so boids only care about other boids in close proximity which greatly increases simulation
+	performance.
 	*/
 	public class SpatialHash<T> : Dictionary<Vector2, List<T>> where T : Entity
 	{
@@ -26,7 +28,7 @@ namespace Boids.lib
 			//DeleteDictionaryAndValues!(this);
 		}
 
-		
+
 		//Queries a different cell from the given position. (eg: cellsLeft=1 will make it check a cell to the left)
 		public void QueryRelativePosition(Vector2 vector, int cellsLeft, int cellsUp, int cellsRight, int cellsDown, ref List<T> output)
 		{
@@ -102,6 +104,31 @@ namespace Boids.lib
 			this[gridPos].Add(item);
 		}
 
+
+		public void AddRadius(T item, float radius)
+		{
+			List<Vector2> gridPositions = scope .();
+			gridPositions.Add(.(item.position.x + radius, item.position.y));
+			gridPositions.Add(.(item.position.x - radius, item.position.y));
+			gridPositions.Add(.(item.position.x, item.position.y + radius));
+			gridPositions.Add(.(item.position.x, item.position.y - radius));
+
+			gridPositions.Add(.(item.position.x + radius, item.position.y + radius));
+			gridPositions.Add(.(item.position.x - radius, item.position.y - radius));
+			gridPositions.Add(.(item.position.x - radius , item.position.y + radius));
+			gridPositions.Add(.(item.position.x + radius , item.position.y - radius));
+
+			for(int i=0; i<gridPositions.Count; i++){
+				Vector2 gridPos=VectorToGridSpace(gridPositions[i]);
+				if (!ContainsKey(gridPos))
+				{
+					this.Add(gridPos, new List<T>());
+					this[gridPos].Add(item);
+				}
+			}
+		}
+
+
 		//Two functions for Contains. Probably redundant, but this means I can check if we contain an objects position
 		// given the actual object or just it's position
 		public bool Contains(T item)
@@ -120,6 +147,44 @@ namespace Boids.lib
 		{
 			ThrowUnimplemented();
 		}
+
+		public void RemoveRadius(T item, float radius)
+		{
+			Console.WriteLine("Removing");
+			List<Vector2> gridPositions = scope .();
+			gridPositions.Add(.(item.position.x + radius, item.position.y));
+			gridPositions.Add(.(item.position.x - radius, item.position.y));
+			gridPositions.Add(.(item.position.x, item.position.y + radius));
+			gridPositions.Add(.(item.position.x, item.position.y - radius));
+
+			gridPositions.Add(.(item.position.x + radius, item.position.y + radius));
+			gridPositions.Add(.(item.position.x - radius, item.position.y - radius));
+			gridPositions.Add(.(item.position.x - radius , item.position.y + radius));
+			gridPositions.Add(.(item.position.x + radius , item.position.y - radius));
+
+			for(int i=0; i<gridPositions.Count; i++){
+				Vector2 oldGridCell=VectorToGridSpace(gridPositions[i]);
+				if (Contains(oldGridCell, true) && this[oldGridCell].Count > 0)
+				{
+					int index = this[oldGridCell].FindIndex(scope (x) => { return x == item; });
+
+					if (index > this[oldGridCell].Count || index < 0)
+					{
+						return;
+					}
+					this[oldGridCell].RemoveAt(index);
+					if (this[oldGridCell].Count == 0)
+					{
+						//Free memory
+						delete (this[oldGridCell]);
+						//Remove key
+						Remove(oldGridCell);
+					}
+				}
+			}
+		}
+
+
 
 		public bool Remove(T item)
 		{

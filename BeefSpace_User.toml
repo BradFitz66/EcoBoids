@@ -1,7 +1,7 @@
 FileVersion = 1
 LastConfig = "Release"
 LastPlatform = "Win64"
-RecentFilesList = ["src\\Boid.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\System.bf", "src\\GameApp.bf", "src\\MainMenu.bf", "src\\lib\\Statemachine.bf", "src\\lib\\InputFIeld.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\Atma.Framework\\src\\Atma.Common\\src\\Math\\vec2\\float2.cs"]
+RecentFilesList = ["src\\Boid.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Attribute.bf", "src\\GameApp.bf", "src\\Flock.bf", "src\\lib\\Entity.bf", "src\\lib\\InputFIeld.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Collections\\List.bf", "Disassembly", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Diagnostics\\Stopwatch.bf", "src\\Program.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Event.bf", "src\\lib\\SpatialHash.bf", "src\\lib\\Textfield.bf", "src\\lib\\UIElement.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\System.bf", "src\\MainMenu.bf", "src\\lib\\Button.bf", "c:\\Program Files\\BeefLang\\BeefLibs\\Atma.Framework\\src\\Atma.Common\\src\\Math\\vec2\\float2.cs"]
 
 [MainWindow]
 X = 676
@@ -29,7 +29,7 @@ Type = "TabbedView"
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 Active = true
 TabLabel = "Workspace"
-TabWidth = 113.2076
+TabWidth = 115.0
 Type = "ProjectPanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets]]
@@ -42,44 +42,136 @@ DefaultDocumentsTabbedView = true
 Type = "TabbedView"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Program.bf"
+TabWidth = 96.0
+Type = "SourceViewPanel"
+FilePath = "src\\Program.bf"
+CursorPos = 193
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Event.bf"
+TabWidth = 76.0
+Type = "SourceViewPanel"
+FilePath = "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Event.bf"
+CursorPos = 5594
+VertPos = 4400.0
+ProjectName = "corlib"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "SpatialHash.bf"
+TabWidth = 113.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\SpatialHash.bf"
+CursorPos = 826
+VertPos = 2992.0
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Textfield.bf"
+TabWidth = 93.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\Textfield.bf"
+CursorPos = 646
+VertPos = 144.0
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "UIElement.bf"
+TabWidth = 103.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\UIElement.bf"
+CursorPos = 539
+VertPos = 336.0
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Button.bf"
+TabWidth = 82.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\Button.bf"
+CursorPos = 330
+VertPos = 48.0
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "List.bf"
+TabWidth = 64.0
+Type = "SourceViewPanel"
+FilePath = "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Collections\\List.bf"
+CursorPos = 4640
+VertPos = 3585.0
+ProjectName = "corlib"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Flock.bf"
+TabWidth = 74.0
+Type = "SourceViewPanel"
+FilePath = "src\\Flock.bf"
+CursorPos = 2050
+VertPos = 48.0
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Stopwatch.bf"
+TabWidth = 105.0
+Type = "SourceViewPanel"
+FilePath = "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\Diagnostics\\Stopwatch.bf"
+CursorPos = 2587
+ProjectName = "corlib"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Disassembly"
+TabWidth = 102.0
+Type = "DisassemblyPanel"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
+TabLabel = "Entity.bf"
+TabWidth = 76.0
+Type = "SourceViewPanel"
+FilePath = "src\\lib\\Entity.bf"
+CursorPos = 668
+ProjectName = "Boids"
+
+[[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "GameApp.bf"
-TabWidth = 101.6981
+TabWidth = 103.0
 Type = "SourceViewPanel"
 FilePath = "src\\GameApp.bf"
-CursorPos = 3322
-VertPos = 1840.0
+CursorPos = 3334
+VertPos = 624.0
 ProjectName = "Boids"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "MainMenu.bf"
-TabWidth = 107.3585
+TabWidth = 107.0
 Type = "SourceViewPanel"
 FilePath = "src\\MainMenu.bf"
-CursorPos = 723
+CursorPos = 582
 ProjectName = "Boids"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 Active = true
 TabLabel = "Boid.bf"
-TabWidth = 69.62265
+TabWidth = 71.0
 Type = "SourceViewPanel"
 FilePath = "src\\Boid.bf"
-CursorPos = 8621
-VertPos = 2384.0
+CursorPos = 5758
+VertPos = 2262.0
 ProjectName = "Boids"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "System.bf"
-TabWidth = 85.66039
+TabWidth = 86.0
 Type = "SourceViewPanel"
 FilePath = "c:\\Program Files\\BeefLang\\BeefLibs\\corlib\\src\\System.bf"
-CursorPos = 2576
-VertPos = 2048.0
+CursorPos = 3071
+VertPos = 2432.0
 ProjectName = "corlib"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "InputFIeld.bf"
-TabWidth = 102.6415
+TabWidth = 101.0
 Type = "SourceViewPanel"
 FilePath = "src\\lib\\InputFIeld.bf"
 CursorPos = 1169
@@ -100,28 +192,28 @@ Type = "TabbedView"
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 Active = true
 TabLabel = "Profile"
-TabWidth = 85.84906
+TabWidth = 87.0
 Type = "ProfilePanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Memory"
-TabWidth = 99.05661
+TabWidth = 99.0
 Type = "MemoryPanel"
 AutoResize = "Auto_Mul8"
 RequestedWidth = 505.0
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Watch"
-TabWidth = 86.79246
+TabWidth = 86.0
 Type = "WatchPanel"
-Columns = [{Width = 200.0}, {Width = 200.0}, {Width = 200.0}]
+Columns = [{Width = 189.0}, {Width = 189.0}, {Width = 189.0}]
 Items = [""]
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Auto"
-TabWidth = 78.30189
+TabWidth = 77.0
 Type = "AutoWatchPanel"
-Columns = [{Width = 200.0}, {Width = 200.0}, {Width = 200.0}]
+Columns = [{Width = 189.0}, {Width = 189.0}, {Width = 189.0}]
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets]]
 RequestedWidth = 250.0
@@ -131,26 +223,26 @@ Type = "TabbedView"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Find Results"
-TabWidth = 118.8679
+TabWidth = 119.0
 Type = "FindResultsPanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Threads"
-TabWidth = 95.28303
+TabWidth = 97.0
 Type = "ThreadPanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Call Stack"
-TabWidth = 104.717
+TabWidth = 105.0
 Type = "CallStackPanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 TabLabel = "Immediate"
-TabWidth = 111.3208
+TabWidth = 111.0
 Type = "ImmediatePanel"
 
 [[MainDockingFrame.DockedWidgets.DockedWidgets.Tabs]]
 Active = true
 TabLabel = "Output"
-TabWidth = 92.45284
+TabWidth = 90.0
 Type = "OutputPanel"

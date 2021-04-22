@@ -11,7 +11,7 @@ namespace Boids
 	*/
 	class Flock
 	{
-		public List<Boid> boids ~ delete _5;
+		public List<Boid> boids ~ delete _;
 		public Color flockColor{get; private set;};
 		public Color flockMixColor = Color.WHITE;
 
@@ -36,6 +36,8 @@ namespace Boids
 			{
 				if (boids[i].deadFlag)
 				{
+
+					hash.Remove(boids[i]);
 					DeleteAndNullify!(boids[i]);
 					boids.Remove(boids[i]);
 					continue;

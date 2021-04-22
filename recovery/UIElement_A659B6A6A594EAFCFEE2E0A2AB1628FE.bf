@@ -33,12 +33,10 @@ namespace Boids.lib
 			return CheckCollisionPointRec(GetMousePosition(),.(Position.x,Position.y,Bounds.width,Bounds.height));
 		}
 		private void UpdateRelativePosition(){
-			
 			RelativePosition=Vector2DivideV(.(
 				Bounds.x-(Bounds.width/2),
 				Bounds.y-(Bounds.height/2)
 			),.(baseScreenWidth,baseScreenHeight));
-			//RelativePosition=Vector2DivideV(.(baseScreenWidth - (pivot==Pivot.CORNER? Bounds.x : Bounds.x + (Bounds.width/2)), baseScreenHeight - (pivot==Pivot.CORNER? Bounds.y : Bounds.y + (Bounds.height/2))),.(baseScreenWidth,baseScreenHeight));
 		}
 
 		public virtual void Draw(){

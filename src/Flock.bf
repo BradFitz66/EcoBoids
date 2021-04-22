@@ -36,6 +36,8 @@ namespace Boids
 			{
 				if (boids[i].deadFlag)
 				{
+
+					hash.Remove(boids[i]);
 					DeleteAndNullify!(boids[i]);
 					boids.Remove(boids[i]);
 					continue;
