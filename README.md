@@ -11,18 +11,18 @@ There's also a "flock" system where boids will be assigned to flocks and will on
 
 - [ ] Multithreading (this is a BIG maybe. Performance is already fine with >1000 boids, but multithreading would mean way more would be possible)
 
-- [ ] Family trees (you'll be able to see the family tree of boids and how long a family has been alive as-well as extinct families of boids)
+- [x] Family trees (you'll be able to see the family tree of boids and how long a family has been alive as-well as extinct families of boids). 
 
 - [x] Predators (boids that hunt other boids. Boids will run away from predators)
 
-- [ ] Food 
+- [ ] Food*
  
-- [ ] Reproduction
+- [x] Reproduction
 
-- [ ] Death
+- [x] Death
 
-- [ ] Aging (boids become bigger with age)
+- [x] Aging (boids become bigger with age)
 
 - [x] Stats (boids have random stats such as random max speed, random max acceleration, etc. This is to hopefully make it so boids with better stats survive and reproduce while boids with worse stats die off)
 
-
+* food wasn't implemented due to bugs that were annoying to solve.
