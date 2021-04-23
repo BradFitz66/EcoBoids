@@ -43,8 +43,8 @@ namespace Boids
 		public const int worldHeight = 2000;
 
 
-		public const int BoidsAmount = 250;
-		public const int FlockAmount = 10;
+		public const int BoidsAmount = 1000;
+		public const int FlockAmount = 20;
 		public const int maxPredatorCount = 10;
 		public static void SetCameraTarget(Boid newTarget)
 		{

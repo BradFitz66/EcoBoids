@@ -43,7 +43,7 @@ namespace Boids
 		public this(bool isPred)
 		{
 			int modifier = isPred ? 2 : 1 + (rand.Next(1, 30) / 100);
-			maxSpeed = float((rand.Next(3, 10)) * modifier)/ (!isPred ? 8 : 5);
+			maxSpeed = float((rand.Next(3, 10)) * modifier) / (!isPred ? 8 : 5);
 			maxForce = Math.Abs((float(rand.Next(1, 3)) / 100) * modifier);
 			health = 100;
 			hungerTolerance = rand.Next(30, 70);
@@ -153,9 +153,11 @@ namespace Boids
 			boidStates.Add(mateState);
 		}
 
+
+		//Calculate fitness with a bias towards higher speeds than higher maximum age and lower mating age
 		public float CalculateFitness()
 		{
-			return (boidStats.maxSpeed + boidStats.maxForce + (250 * (250 / boidStats.matingAge)) + (boidStats.maxAge * (boidStats.maxAge / boidStats.maxAge))) / 4;
+			return (boidStats.maxSpeed * 2 + boidStats.maxForce + (250 * (250 / boidStats.matingAge)) / 2 + (boidStats.maxAge / 2)) / 4;
 		}
 
 		public ~this()
@@ -166,22 +168,23 @@ namespace Boids
 		public Vector2 limitVec(Vector2 vector, float maxMagnitude)
 		{
 			Vector2 v = vector;
-		    if (Vector2LengthSqr(vector) > (maxMagnitude * maxMagnitude))
-		    {
-		        v = Vector2Normalize(vector)*maxMagnitude;
-		    }
+			if (Vector2LengthSqr(vector) > (maxMagnitude * maxMagnitude))
+			{
+				v = Vector2Normalize(vector) * maxMagnitude;
+			}
 			return v;
 		}
 
-		public float Vector2LengthSqr(Vector2 v){
-			return (v.x*v.x) + (v.y*v.y);
+		public float Vector2LengthSqr(Vector2 v)
+		{
+			return (v.x * v.x) + (v.y * v.y);
 		}
 
 		public static void Wander(ref Entity e)
 		{
 			Boid b = (Boid)e;
 
-			b.ApplyForce(b.separate()*1.25f);
+			b.ApplyForce(b.separate() * 1.25f);
 			b.ApplyForce(b.align());
 			b.ApplyForce(b.cohese());
 
@@ -190,6 +193,7 @@ namespace Boids
 
 			if (b.currentMate == null && !b.hasReproduced && b.boidStats.age > b.boidStats.matingAge)
 			{
+				List<Boid> viableMates = new .();
 				for (int i = 0; i < b.flock.boids.Count; i++)
 				{
 					if (b.currentMate != null)
@@ -199,22 +203,18 @@ namespace Boids
 
 					if (other != b && other.boidStats.age > other.boidStats.matingAge && other.currentMate == null && !other.hasReproduced)
 					{
-						//Calculate relativeFitness of the two boids.
-						float relativeFitness = b.CalculateFitness() - other.CalculateFitness();
-						if ((relativeFitness <= -10))
-						{//Determine if mate is suitable (is fitter by a certain amount)
-							other.currentMate = b;
-							b.currentMate = other;
-							b.matingSpot = .(rand.Next(100, worldWidth - 100), rand.Next(100, worldHeight - 100));
-							other.matingSpot = b.matingSpot;
-
-							b.boidStates.SwitchState("Mate");
-							other.boidStates.SwitchState("Mate");
-
-							break;
-						}
+						viableMates.Add(other);
 					}
 				}
+				if (viableMates.Count > 0)
+				{
+					Boid best = b.ChooseBestMate(viableMates);
+					b.currentMate = best;
+					best.currentMate = b;
+					best.boidStates.SwitchState("Mate");
+					b.boidStates.SwitchState("Mate");
+				}
+				delete viableMates;
 			}
 		}
 
@@ -324,6 +324,7 @@ namespace Boids
 		{
 			acceleration += force;
 		}
+
 		public void GetBoidsInRange(ref List<Entity> boids)
 		{
 			List<Entity> left = scope List<Entity>();
@@ -407,7 +408,7 @@ namespace Boids
 					boidStats.age += 1 * GetFrameTime();
 			}
 			velocity += acceleration;
-			velocity=limitVec(velocity, boidStats.maxSpeed);
+			velocity = limitVec(velocity, boidStats.maxSpeed);
 			position += velocity;
 			acceleration *= 0;
 
@@ -460,9 +461,29 @@ namespace Boids
 				alignment = Vector2Normalize(alignment);
 				alignment *= boidStats.maxSpeed;
 				alignment -= (velocity);
-				alignment=limitVec(alignment, boidStats.maxForce);
+				alignment = limitVec(alignment, boidStats.maxForce);
 			}
 			return alignment;
+		}
+
+		public Boid ChooseBestMate(List<Boid> options)
+		{
+			//Get random mate with a bias towards boids with higher fitness
+			Boid best = null;
+
+			options.Sort(
+				scope (a, b) =>
+				{
+					return (b.CalculateFitness().CompareTo(a.CalculateFitness()));
+				}
+			);
+
+			int randIndex = int(Math.Floor(Math.Abs(rand.NextDouble() - rand.NextDouble()) * (1 + options.Count)));
+			Console.WriteLine($"{randIndex},{options.Count}");
+
+			best = options[randIndex];
+
+			return best;
 		}
 
 		public Vector2 flee()
@@ -538,7 +559,7 @@ namespace Boids
 				cohesion = Vector2Normalize(cohesion);
 				cohesion *= boidStats.maxSpeed;
 				cohesion -= velocity;
-				cohesion=limitVec(cohesion, boidStats.maxForce);
+				cohesion = limitVec(cohesion, boidStats.maxForce);
 			}
 			return cohesion;
 		}
@@ -574,7 +595,7 @@ namespace Boids
 				separation = Vector2Normalize(separation);
 				separation *= boidStats.maxSpeed;
 				separation -= velocity;
-				separation=limitVec(separation, boidStats.maxForce);
+				separation = limitVec(separation, boidStats.maxForce);
 			}
 
 
